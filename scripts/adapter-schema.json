@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Autopoies Browser Connect site adapter",
+  "description": "YAML adapter that defines named commands for a website. Loaded by ap-browser CLI at runtime from ~/.ap-browser/sites/.",
+  "type": "object",
+  "required": ["site", "name", "description", "args", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "site": {
+      "type": "string",
+      "description": "Site folder name; must match the parent directory. E.g. 'hackernews', 'bilibili'."
+    },
+    "name": {
+      "type": "string",
+      "description": "Command name; must match the YAML filename without extension. E.g. 'top', 'search'."
+    },
+    "description": {
+      "type": "string",
+      "description": "One-line human-readable summary of what this command does."
+    },
+    "args": {
+      "type": "object",
+      "description": "Declared arguments. Each key is the arg name; value is an arg definition.",
+      "additionalProperties": { "$ref": "#/definitions/argDef" }
+    },
+    "input": {
+      "$ref": "#/definitions/inputDef",
+      "description": "Optional pipe-input spec. When present, the adapter accepts NDJSON from stdin and auto-maps fields to args."
+    },
+    "output": {
+      "$ref": "#/definitions/outputDef",
+      "description": "Optional output declaration. Helps pipe-downstream validation."
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered list of step primitives. Each step is a single-key object mapping method name to params.",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/step" }
+    }
+  },
+  "definitions": {
+    "argDef": {
+      "type": "object",
+      "required": ["type", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["string", "int", "bool"] },
+        "description": { "type": "string" },
+        "required": { "type": "boolean", "default": true }
+      }
+    },
+    "inputDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "field": { "type": "string", "description": "Arg name to fill from each NDJSON record's same-named field." }
+      }
+    },
+    "outputDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "format": { "enum": ["ndjson", "table", "raw"] }
+      }
+    },
+    "step": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "goto":    { "type": "string", "description": "Navigate to URL (supports {{args.x}} templates)." },
+        "wait":    { "type": "string", "description": "CSS selector to wait for." },
+        "eval":    { "type": "string", "description": "JavaScript expression to evaluate via CDP." },
+        "text":    { "type": "string", "description": "CSS selector to extract text from." },
+        "click":   { "type": "string", "description": "CSS selector to click." },
+        "fill":    { "type": "object", "description": "Fill a form field.", "properties": { "selector": {"type":"string"}, "value": {"type":"string"} }, "required": ["selector", "value"] },
+        "press":   { "type": "string", "description": "Key sequence to press (e.g. 'Enter', 'Control+a')." },
+        "scroll":  { "type": "string", "description": "Scroll target: 'bottom', 'top', or CSS selector." }
+      }
+    }
+  }
+}

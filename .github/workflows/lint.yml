@@ -1,0 +1,30 @@
+name: Lint adapters
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  yaml-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install jsonschema
+        run: pip install jsonschema pyyaml
+      - name: Lint adapter YAML
+        run: python scripts/lint_adapters.py knowledge/sites/ --schema scripts/adapter-schema.json
+
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check site docs present
+        run: |
+          for site in knowledge/sites/*.md; do
+            [ -f "$site" ] || { echo "Missing: $site"; exit 1; }
+          done
