@@ -1,0 +1,22 @@
+site: hackernews
+name: show
+description: Fetch Show HN stories
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of stories per page
+  page:
+    type: int
+    default: 1
+    desc: page number (30 stories per page)
+
+output:
+  type: array
+  fields: [rank, title, url, points, comments]
+
+steps:
+  - goto: "https://news.ycombinator.com/show?p={{args.page}}"
+  - wait: ".athing"
+  - eval: top.js

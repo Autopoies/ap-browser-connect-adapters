@@ -1,0 +1,23 @@
+site: instagram
+name: explore
+description: Fetch Instagram explore posts (requires login)
+
+args:
+  limit:
+    type: int
+    default: 24
+  scrolls:
+    type: int
+    default: 2
+
+output:
+  type: array
+  fields: [type, url, thumbnail, text]
+
+steps:
+  - goto: "https://www.instagram.com/explore/"
+  - wait: "body"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2200
+  - eval: explore.js

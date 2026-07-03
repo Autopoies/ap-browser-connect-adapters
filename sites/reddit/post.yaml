@@ -1,0 +1,22 @@
+site: reddit
+name: post
+description: Fetch a Reddit post with top-level comments
+
+args:
+  permalink:
+    type: string
+    required: true
+    desc: post permalink (e.g. "/r/programming/comments/1tlh5aj/...") or full URL
+  limit:
+    type: int
+    default: 30
+    desc: max number of top-level comments
+
+output:
+  type: object
+  fields: [title, url, score, num_comments, author, subreddit, body, comments]
+
+steps:
+  - goto: "https://www.reddit.com{{args.permalink}}.json"
+  - wait: "pre"
+  - eval: post.js

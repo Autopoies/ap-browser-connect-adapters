@@ -1,0 +1,22 @@
+site: apple-podcasts
+name: search
+description: Search Apple Podcasts
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search query
+  limit:
+    type: int
+    default: 20
+    desc: max results
+
+output:
+  type: array
+  fields: [title, kind, url, podcast_id]
+
+steps:
+  - goto: "https://podcasts.apple.com/us/search?term={{args.query}}"
+  - wait: "a[href*='/podcast/']"
+  - eval: search.js

@@ -1,0 +1,22 @@
+site: reddit
+name: user
+description: Fetch a Reddit user's recent posts and comments (no login)
+
+args:
+  username:
+    type: string
+    required: true
+    desc: reddit username
+  limit:
+    type: int
+    default: 25
+    desc: max number of items
+
+output:
+  type: array
+  fields: [kind, title, body, permalink, score, subreddit, created_utc]
+
+steps:
+  - goto: "https://www.reddit.com/user/{{args.username}}/overview.json?limit={{args.limit}}"
+  - wait: "pre"
+  - eval: user.js

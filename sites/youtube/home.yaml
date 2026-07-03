@@ -1,0 +1,25 @@
+site: youtube
+name: home
+description: Fetch recommended videos from the YouTube homepage
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of videos to return
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll-to-bottom count to trigger lazy loading (each adds ~10-20 videos)
+
+output:
+  type: array
+  fields: [title, video_id, url, channel, views, duration]
+
+steps:
+  - goto: "https://www.youtube.com/"
+  - wait: "ytd-rich-item-renderer"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1500
+  - eval: home.js

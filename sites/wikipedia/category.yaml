@@ -1,0 +1,22 @@
+site: wikipedia
+name: category
+description: List pages in a Wikipedia category
+
+args:
+  name:
+    type: string
+    required: true
+    desc: category name (e.g. "Programming_languages")
+  limit:
+    type: int
+    default: 50
+    desc: max number of pages
+
+output:
+  type: array
+  fields: [title, url]
+
+steps:
+  - goto: "https://en.wikipedia.org/wiki/Category:{{args.name}}"
+  - wait: "#mw-pages"
+  - eval: category.js

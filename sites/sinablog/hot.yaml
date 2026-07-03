@@ -1,0 +1,18 @@
+site: sinablog
+name: hot
+description: Read Sina Blog hot blog index
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max blogs
+
+output:
+  type: array
+  fields: [title, url]
+
+steps:
+  - goto: "https://blog.sina.com.cn/lm/hot/"
+  - wait: "body"
+  - eval: hot.js

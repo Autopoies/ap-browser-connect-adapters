@@ -1,0 +1,12 @@
+site: v2ex
+name: latest
+description: Fetch latest topics from V2EX
+
+output:
+  type: array
+  fields: [title, url, node, author, replies]
+
+steps:
+  - goto: "https://www.v2ex.com/?tab=latest"
+  - wait: ".cell.item"
+  - eval: hot.js

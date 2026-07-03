@@ -1,0 +1,18 @@
+site: stackoverflow
+name: hot
+description: Fetch hot Stack Overflow questions across all tags
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of questions
+
+output:
+  type: array
+  fields: [title, url, excerpt, votes, answers, views, tags]
+
+steps:
+  - goto: "https://stackoverflow.com/?tab=hot"
+  - wait: ".s-post-summary"
+  - eval: search.js

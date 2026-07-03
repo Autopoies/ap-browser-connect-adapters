@@ -1,0 +1,29 @@
+site: zhihu
+name: question
+description: 知乎问题（含答案列表，需登录）
+
+args:
+  id:
+    type: string
+    required: true
+    desc: 问题 ID（数字）
+  limit:
+    type: int
+    default: 10
+    desc: max number of answers to return
+  scrolls:
+    type: int
+    default: 1
+    desc: scroll-to-bottom count to load more answers
+
+output:
+  type: object
+  fields: [id, title, detail, answers]
+
+steps:
+  - goto: "https://www.zhihu.com/question/{{args.id}}"
+  - wait: ".QuestionHeader-title"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1500
+  - eval: question.js

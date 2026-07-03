@@ -1,0 +1,18 @@
+site: chaoxing
+name: exams
+description: List visible Chaoxing exams when logged in
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max exams
+
+output:
+  type: array
+  fields: [title, url, status]
+
+steps:
+  - goto: "https://i.chaoxing.com/"
+  - wait: "body"
+  - eval: exams.js

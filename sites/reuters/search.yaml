@@ -1,0 +1,26 @@
+site: reuters
+name: search
+description: Search Reuters news
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 10
+    desc: max articles
+  page:
+    type: int
+    default: 1
+    desc: result page
+
+output:
+  type: array
+  fields: [title, url, summary, date]
+
+steps:
+  - goto: "https://www.google.com/search?q=site:reuters.com%20{{args.query}}&start={{eval args.page - 1 * 10}}"
+  - wait: "h3"
+  - eval: search.js

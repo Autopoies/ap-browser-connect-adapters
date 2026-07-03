@@ -1,0 +1,25 @@
+site: barchart
+name: options
+description: Get visible options rows from Barchart
+
+args:
+  symbol:
+    type: string
+    required: true
+    desc: ticker symbol, e.g. AAPL
+  limit:
+    type: int
+    default: 20
+    desc: max rows
+
+output:
+  type: array
+  fields: [symbol, expiration, type, strike, last, bid, ask, volume, open_interest]
+
+steps:
+  - goto: "https://www.barchart.com/stocks/quotes/{{args.symbol}}/options"
+  - wait: "body"
+  - scroll:
+      count: 1
+      pause_ms: 1000
+  - eval: options.js

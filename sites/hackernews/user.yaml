@@ -1,0 +1,18 @@
+site: hackernews
+name: user
+description: Fetch HackerNews user profile
+
+args:
+  id:
+    type: string
+    required: true
+    desc: username
+
+output:
+  type: object
+  fields: [id, created, karma, about]
+
+steps:
+  - goto: "https://news.ycombinator.com/user?id={{args.id}}"
+  - wait: ".hnuser"
+  - eval: user.js

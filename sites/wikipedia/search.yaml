@@ -1,0 +1,22 @@
+site: wikipedia
+name: search
+description: Search Wikipedia articles
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search query
+  limit:
+    type: int
+    default: 20
+    desc: max number of results
+
+output:
+  type: array
+  fields: [title, url, description, meta]
+
+steps:
+  - goto: "https://en.wikipedia.org/w/index.php?search={{args.query}}&title=Special:Search&fulltext=1"
+  - wait: "ul.mw-search-results > li"
+  - eval: search.js

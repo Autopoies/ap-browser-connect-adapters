@@ -1,0 +1,22 @@
+site: gist
+name: user-gists
+description: List public gists of a GitHub user
+
+args:
+  username:
+    type: string
+    required: true
+    desc: github username
+  limit:
+    type: int
+    default: 10
+    desc: max number of gists (10 per page)
+
+output:
+  type: array
+  fields: [gist_id, url, filename, author]
+
+steps:
+  - goto: "https://gist.github.com/{{args.username}}"
+  - wait: ".gist-snippet"
+  - eval: user-gists.js

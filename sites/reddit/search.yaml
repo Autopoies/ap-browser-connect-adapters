@@ -1,0 +1,22 @@
+site: reddit
+name: search
+description: Search Reddit posts across all subreddits (no login)
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search query
+  limit:
+    type: int
+    default: 25
+    desc: max number of posts
+
+output:
+  type: array
+  fields: [title, url, permalink, score, num_comments, author, subreddit]
+
+steps:
+  - goto: "https://www.reddit.com/search.json?q={{args.query}}&limit={{args.limit}}"
+  - wait: "pre"
+  - eval: search.js

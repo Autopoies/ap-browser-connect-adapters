@@ -1,0 +1,22 @@
+site: google
+name: news
+description: Search Google News
+
+args:
+  query:
+    type: string
+    required: true
+    desc: news keyword
+  limit:
+    type: int
+    default: 10
+    desc: max articles
+
+output:
+  type: array
+  fields: [title, url, source, time]
+
+steps:
+  - goto: "https://news.google.com/search?q={{args.query}}"
+  - wait: "a[href*='/read/']"
+  - eval: news.js

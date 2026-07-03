@@ -1,0 +1,25 @@
+site: devto
+name: feed
+description: Fetch the DEV Community home feed (top/featured stories)
+
+args:
+  limit:
+    type: int
+    default: 20
+    desc: max number of articles
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll count for infinite feed
+
+output:
+  type: array
+  fields: [title, url, tags]
+
+steps:
+  - goto: "https://dev.to/"
+  - wait: "main article"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1500
+  - eval: feed.js

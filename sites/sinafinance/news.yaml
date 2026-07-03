@@ -1,0 +1,18 @@
+site: sinafinance
+name: news
+description: Fetch finance headlines from Sina Finance front page
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max headlines
+
+output:
+  type: array
+  fields: [title, url]
+
+steps:
+  - goto: "https://finance.sina.com.cn/"
+  - wait: "a"
+  - eval: news.js

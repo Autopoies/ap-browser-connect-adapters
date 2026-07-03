@@ -1,0 +1,4 @@
+site: xueqiu
+domain: xueqiu.com
+description: 雪球 public stock pages; some endpoints may require login
+login_url: https://xueqiu.com/

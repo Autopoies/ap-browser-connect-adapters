@@ -1,0 +1,12 @@
+site: wikipedia
+name: random
+description: Fetch one random Wikipedia article's title and summary
+
+output:
+  type: object
+  fields: [title, url, summary]
+
+steps:
+  - goto: "https://en.wikipedia.org/wiki/Special:Random"
+  - wait: "#mw-content-text"
+  - eval: random.js

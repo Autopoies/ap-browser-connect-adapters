@@ -1,0 +1,22 @@
+site: lobsters
+name: newest
+description: Fetch newest stories from Lobsters
+
+args:
+  limit:
+    type: int
+    default: 25
+    desc: max number of stories per page
+  page:
+    type: int
+    default: 1
+    desc: page number (25 stories per page)
+
+output:
+  type: array
+  fields: [title, url, score, comments_count, comments_url, tags, author]
+
+steps:
+  - goto: "https://lobste.rs/newest?page={{args.page}}"
+  - wait: ".story"
+  - eval: newest.js

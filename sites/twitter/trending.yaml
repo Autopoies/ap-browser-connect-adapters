@@ -1,0 +1,23 @@
+site: twitter
+name: trending
+description: Fetch trending topics from X Explore
+
+args:
+  limit:
+    type: int
+    default: 20
+    desc: max number of trends
+
+output:
+  type: array
+  fields: [topic, category, posts, url]
+
+steps:
+  - goto: "https://x.com/explore/tabs/trending"
+  - wait:
+      selector: "[data-testid='trend']"
+      timeout_ms: 15000
+  - scroll:
+      count: 1
+      pause_ms: 2500
+  - eval: trending.js

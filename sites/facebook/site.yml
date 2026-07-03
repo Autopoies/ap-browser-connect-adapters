@@ -1,0 +1,4 @@
+site: facebook
+domain: www.facebook.com
+description: Facebook — social networking platform
+login_url: https://www.facebook.com/login

@@ -1,0 +1,18 @@
+site: xueqiu
+name: stock
+description: Fetch visible stock quote from Xueqiu stock page
+
+args:
+  symbol:
+    type: string
+    required: true
+    desc: stock symbol such as SH600519 or AAPL
+
+output:
+  type: array
+  fields: [symbol, name, price, change, percent]
+
+steps:
+  - goto: "https://xueqiu.com/S/{{args.symbol}}"
+  - wait: "body"
+  - eval: stock.js

@@ -1,0 +1,22 @@
+site: reddit
+name: new
+description: Fetch newest posts from a subreddit (no login)
+
+args:
+  subreddit:
+    type: string
+    required: true
+    desc: subreddit name
+  limit:
+    type: int
+    default: 25
+    desc: max number of posts
+
+output:
+  type: array
+  fields: [title, url, permalink, score, num_comments, author, subreddit]
+
+steps:
+  - goto: "https://www.reddit.com/r/{{args.subreddit}}/new/.json?limit={{args.limit}}"
+  - wait: "pre"
+  - eval: hot.js

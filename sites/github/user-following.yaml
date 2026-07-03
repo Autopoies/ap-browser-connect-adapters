@@ -1,0 +1,29 @@
+site: github
+name: user-following
+description: List users a GitHub user is following
+
+args:
+  username:
+    type: string
+    required: true
+    desc: github username
+  limit:
+    type: int
+    default: 50
+    desc: max number per page (50 per page)
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll count
+
+output:
+  type: array
+  fields: [username, name, url]
+
+steps:
+  - goto: "https://github.com/{{args.username}}?tab=following"
+  - wait: "a[data-hovercard-type='user']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: user-followers.js

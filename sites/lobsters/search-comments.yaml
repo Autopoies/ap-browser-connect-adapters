@@ -1,0 +1,22 @@
+site: lobsters
+name: search-comments
+description: Search Lobsters comments
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 20
+    desc: max number of comments
+
+output:
+  type: array
+  fields: [user, age, on_story, story_url, text]
+
+steps:
+  - goto: "https://lobste.rs/search?q={{args.query}}&what=comments&order=newest"
+  - wait: ".comment"
+  - eval: search-comments.js

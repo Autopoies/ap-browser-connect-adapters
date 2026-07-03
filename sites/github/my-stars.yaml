@@ -1,0 +1,25 @@
+site: github
+name: my-stars
+description: List repositories you have starred on GitHub (requires Chrome login)
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of starred repos
+  scrolls:
+    type: int
+    default: 3
+    desc: scroll count (stars page lazy-loads)
+
+output:
+  type: array
+  fields: [repo, url]
+
+steps:
+  - goto: "https://github.com/stars"
+  - wait: "h3 a"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1500
+  - eval: my-stars.js

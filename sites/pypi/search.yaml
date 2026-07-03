@@ -1,0 +1,22 @@
+site: pypi
+name: search
+description: Search Python packages on PyPI
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 20
+    desc: max number of packages per page
+
+output:
+  type: array
+  fields: [name, url, description, updated]
+
+steps:
+  - goto: "https://pypi.org/search/?q={{args.query}}"
+  - wait: "a.package-snippet"
+  - eval: search.js

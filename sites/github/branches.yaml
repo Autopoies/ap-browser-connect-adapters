@@ -1,0 +1,22 @@
+site: github
+name: branches
+description: List branches in a repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  limit:
+    type: int
+    default: 30
+    desc: max number of branches (30 per page)
+
+output:
+  type: array
+  fields: [name, protected]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/branches?per_page={{args.limit}}"
+  - wait: "pre"
+  - eval: branches.js

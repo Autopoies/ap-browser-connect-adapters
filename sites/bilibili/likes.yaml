@@ -1,0 +1,26 @@
+site: bilibili
+name: likes
+description: Fetch like notifications (who liked your comments/videos)
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of like notifications to return
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll-to-bottom count to trigger lazy loading
+
+output:
+  type: array
+  fields: [users, action, content, time]
+
+steps:
+  - goto: "https://message.bilibili.com/#/love"
+  - wait: ".interaction-item"
+  - scroll:
+      selector: ".message-content__wrapper"
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: likes.js

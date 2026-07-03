@@ -1,0 +1,18 @@
+site: lobsters
+name: user
+description: Fetch a Lobsters user profile
+
+args:
+  username:
+    type: string
+    required: true
+    desc: username (without leading ~)
+
+output:
+  type: object
+  fields: [username, status, joined, karma, stories, comments, homepage, github, about]
+
+steps:
+  - goto: "https://lobste.rs/~{{args.username}}"
+  - wait: "body"
+  - eval: user.js

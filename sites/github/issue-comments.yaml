@@ -1,0 +1,26 @@
+site: github
+name: issue-comments
+description: Fetch comments for a GitHub issue or PR
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  number:
+    type: string
+    required: true
+    desc: issue or PR number
+  limit:
+    type: int
+    default: 30
+    desc: max number of comments
+
+output:
+  type: array
+  fields: [author, body, created_at]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/issues/{{args.number}}/comments?per_page={{args.limit}}"
+  - wait: "pre"
+  - eval: issue-comments.js

@@ -1,0 +1,30 @@
+site: smzdm
+name: search
+description: Search deals on 什么值得买 or browse a category
+
+args:
+  query:
+    type: string
+    default: 手机
+    desc: search keyword; ignored when category is set
+  category:
+    type: string
+    default: ""
+    desc: category slug for /fenlei/<category>/
+  page:
+    type: int
+    default: 1
+    desc: page number
+  limit:
+    type: int
+    default: 20
+    desc: max results
+
+output:
+  type: array
+  fields: [title, price, url, meta]
+
+steps:
+  - goto: "https://search.smzdm.com/?c=home&s={{args.query}}&p={{args.page}}"
+  - wait: "body"
+  - eval: search.js

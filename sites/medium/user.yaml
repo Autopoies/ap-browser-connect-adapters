@@ -1,0 +1,29 @@
+site: medium
+name: user
+description: Read a Medium user's articles
+
+args:
+  username:
+    type: string
+    required: true
+    desc: Medium username without @
+  limit:
+    type: int
+    default: 10
+    desc: max articles
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll passes before extraction
+
+output:
+  type: array
+  fields: [title, url, subtitle, author]
+
+steps:
+  - goto: "https://medium.com/@{{args.username}}"
+  - wait: "article"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: user.js

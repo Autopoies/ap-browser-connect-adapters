@@ -1,0 +1,29 @@
+site: github
+name: user-stars
+description: List public stars of a GitHub user
+
+args:
+  username:
+    type: string
+    required: true
+    desc: github username
+  limit:
+    type: int
+    default: 30
+    desc: max number of starred repos
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll count for lazy-loaded stars
+
+output:
+  type: array
+  fields: [repo, url]
+
+steps:
+  - goto: "https://github.com/{{args.username}}?tab=stars"
+  - wait: "h3 a"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1500
+  - eval: my-stars.js

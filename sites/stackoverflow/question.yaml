@@ -1,0 +1,29 @@
+site: stackoverflow
+name: question
+description: Fetch a Stack Overflow question with top answers
+
+args:
+  id:
+    type: string
+    required: true
+    desc: question id (numeric, or full URL)
+  limit:
+    type: int
+    default: 5
+    desc: max number of answers to return
+  scrolls:
+    type: int
+    default: 1
+    desc: scroll count to load more answers
+
+output:
+  type: object
+  fields: [id, title, body, answers]
+
+steps:
+  - goto: "https://stackoverflow.com/questions/{{args.id}}"
+  - wait: "#question"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 800
+  - eval: question.js

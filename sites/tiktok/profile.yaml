@@ -1,0 +1,26 @@
+site: tiktok
+name: profile
+description: Fetch a TikTok profile summary and recent videos
+
+args:
+  username:
+    type: string
+    required: true
+  limit:
+    type: int
+    default: 12
+  scrolls:
+    type: int
+    default: 2
+
+output:
+  type: object
+  fields: [name, bio, followers, videos]
+
+steps:
+  - goto: "https://www.tiktok.com/@{{args.username}}"
+  - wait: "body"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2000
+  - eval: profile.js

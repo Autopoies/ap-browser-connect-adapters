@@ -1,0 +1,26 @@
+site: linkedin
+name: search
+description: Search LinkedIn for people and companies; reports auth wall when login is required
+
+args:
+  query:
+    type: string
+    required: true
+  limit:
+    type: int
+    default: 20
+  scrolls:
+    type: int
+    default: 2
+
+output:
+  type: object
+  fields: [blocked, note, people, companies]
+
+steps:
+  - goto: "https://www.linkedin.com/search/results/all/?keywords={{args.query}}"
+  - wait: "body"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2000
+  - eval: search.js

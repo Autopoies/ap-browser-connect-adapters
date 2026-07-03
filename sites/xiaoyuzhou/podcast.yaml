@@ -1,0 +1,22 @@
+site: xiaoyuzhou
+name: podcast
+description: Fetch podcast profile and recent episodes from Xiaoyuzhou
+
+args:
+  id:
+    type: string
+    required: true
+    desc: podcast id from /podcast/<id>
+  limit:
+    type: int
+    default: 10
+    desc: max recent episodes
+
+output:
+  type: array
+  fields: [title, author, subscribers, description, episodes]
+
+steps:
+  - goto: "https://www.xiaoyuzhoufm.com/podcast/{{args.id}}"
+  - wait: "main"
+  - eval: podcast.js

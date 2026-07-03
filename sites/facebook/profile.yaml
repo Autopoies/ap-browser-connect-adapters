@@ -1,0 +1,26 @@
+site: facebook
+name: profile
+description: Fetch a Facebook profile summary and recent posts (requires login)
+
+args:
+  username:
+    type: string
+    required: true
+  limit:
+    type: int
+    default: 10
+  scrolls:
+    type: int
+    default: 2
+
+output:
+  type: object
+  fields: [name, bio, posts]
+
+steps:
+  - goto: "https://www.facebook.com/{{args.username}}"
+  - wait: "[role='main']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2200
+  - eval: profile.js

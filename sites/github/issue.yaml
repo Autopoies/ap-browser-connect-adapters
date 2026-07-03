@@ -1,0 +1,22 @@
+site: github
+name: issue
+description: Fetch a single GitHub issue with comments
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  number:
+    type: string
+    required: true
+    desc: issue number
+
+output:
+  type: object
+  fields: [number, title, state, author, body, comments]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/issues/{{args.number}}"
+  - wait: "pre"
+  - eval: issue.js

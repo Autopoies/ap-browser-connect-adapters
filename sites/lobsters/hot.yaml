@@ -1,0 +1,18 @@
+site: lobsters
+name: hot
+description: Fetch hot stories from the Lobsters front page
+
+args:
+  limit:
+    type: int
+    default: 25
+    desc: max number of stories
+
+output:
+  type: array
+  fields: [title, url, score, comments_count, comments_url, tags, author]
+
+steps:
+  - goto: "https://lobste.rs/"
+  - wait: ".story"
+  - eval: hot.js

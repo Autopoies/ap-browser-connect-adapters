@@ -1,0 +1,18 @@
+site: barchart
+name: quote
+description: Get a stock quote from Barchart
+
+args:
+  symbol:
+    type: string
+    required: true
+    desc: ticker symbol, e.g. AAPL
+
+output:
+  type: array
+  fields: [symbol, price, change, change_percent, previous_close, volume, market_cap]
+
+steps:
+  - goto: "https://www.barchart.com/stocks/quotes/{{args.symbol}}"
+  - wait: "body"
+  - eval: quote.js

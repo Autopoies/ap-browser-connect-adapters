@@ -1,0 +1,31 @@
+site: twitter
+name: profile
+description: Fetch a user's X profile header and recent tweets
+
+args:
+  username:
+    type: string
+    required: true
+    desc: X username without @
+  limit:
+    type: int
+    default: 20
+    desc: max number of tweets
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll count for recent tweets
+
+output:
+  type: object
+  fields: [profile, tweets]
+
+steps:
+  - goto: "https://x.com/{{args.username}}"
+  - wait:
+      selector: "article[data-testid='tweet']"
+      timeout_ms: 15000
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2500
+  - eval: profile.js

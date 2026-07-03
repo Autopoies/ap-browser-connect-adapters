@@ -1,0 +1,22 @@
+site: hackernews
+name: user-comments
+description: Fetch comments by a HackerNews user (via Algolia API)
+
+args:
+  username:
+    type: string
+    required: true
+    desc: HN username
+  limit:
+    type: int
+    default: 20
+    desc: max number of comments
+
+output:
+  type: array
+  fields: [id, text, points, story_title, story_url, created_at]
+
+steps:
+  - goto: "https://hn.algolia.com/api/v1/search?tags=author_{{args.username}},comment"
+  - wait: "pre"
+  - eval: user-comments.js

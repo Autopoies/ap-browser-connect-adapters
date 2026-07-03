@@ -1,0 +1,18 @@
+site: npm
+name: package
+description: Fetch npm package README and metadata
+
+args:
+  name:
+    type: string
+    required: true
+    desc: package name
+
+output:
+  type: object
+  fields: [name, url, readme]
+
+steps:
+  - goto: "https://www.npmjs.com/package/{{args.name}}"
+  - wait: "#readme"
+  - eval: package.js

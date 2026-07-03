@@ -1,0 +1,22 @@
+site: github
+name: contributors
+description: Fetch top contributors for a GitHub repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  limit:
+    type: int
+    default: 30
+    desc: max number of contributors
+
+output:
+  type: array
+  fields: [username, url, contributions]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/contributors?per_page={{args.limit}}"
+  - wait: "pre"
+  - eval: contributors.js

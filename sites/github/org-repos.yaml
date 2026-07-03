@@ -1,0 +1,30 @@
+site: github
+name: org-repos
+description: List repositories of a GitHub organization
+
+args:
+  org:
+    type: string
+    required: true
+    desc: organization name
+  type:
+    type: string
+    default: public
+    desc: repo type filter — all | public | private | forks | sources | member
+  sort:
+    type: string
+    default: updated
+    desc: sort key — created | updated | pushed | full_name
+  limit:
+    type: int
+    default: 30
+    desc: max number of repos per page
+
+output:
+  type: array
+  fields: [name, url, description, stars, language, updated]
+
+steps:
+  - goto: "https://api.github.com/orgs/{{args.org}}/repos?type={{args.type}}&sort={{args.sort}}&per_page={{args.limit}}"
+  - wait: "pre"
+  - eval: org-repos.js

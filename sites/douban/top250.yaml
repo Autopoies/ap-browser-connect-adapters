@@ -1,0 +1,22 @@
+site: douban
+name: top250
+description: 豆瓣电影 Top 250
+
+args:
+  limit:
+    type: int
+    default: 25
+    desc: max number of movies per page
+  page:
+    type: int
+    default: 1
+    desc: page number (25 movies per page, 10 pages total)
+
+output:
+  type: array
+  fields: [rank, title, title_en, url, rating, quote, year]
+
+steps:
+  - goto: "https://movie.douban.com/top250?start={{eval args.page - 1 * 25}}"
+  - wait: "#content .item"
+  - eval: top250.js

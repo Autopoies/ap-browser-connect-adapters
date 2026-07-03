@@ -1,0 +1,22 @@
+site: github
+name: issues
+description: Search GitHub issues across all repos (global issue search)
+
+args:
+  query:
+    type: string
+    required: true
+    desc: GitHub issue search query (e.g. "is:issue sort:comments-desc language:rust")
+  limit:
+    type: int
+    default: 25
+    desc: max number of issues per page
+
+output:
+  type: array
+  fields: [title, url, repo, number, status, author, comments]
+
+steps:
+  - goto: "https://github.com/issues?q={{args.query}}"
+  - wait: "a[href*='/issues/']"
+  - eval: issues.js

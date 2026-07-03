@@ -1,0 +1,4 @@
+site: bilibili
+domain: bilibili.com
+description: Bilibili — Chinese video sharing platform
+login_url: https://passport.bilibili.com/login

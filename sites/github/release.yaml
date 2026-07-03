@@ -1,0 +1,22 @@
+site: github
+name: release
+description: Fetch metadata for a specific release tag
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  tag:
+    type: string
+    required: true
+    desc: release tag name
+
+output:
+  type: object
+  fields: [tag, name, url, body, published_at, draft, prerelease]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/releases/tags/{{args.tag}}"
+  - wait: "pre"
+  - eval: release.js

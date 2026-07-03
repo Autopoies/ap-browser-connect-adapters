@@ -1,0 +1,26 @@
+site: crates-io
+name: search
+description: Search Rust crates on crates.io
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 20
+    desc: max number of crates per page
+  page:
+    type: int
+    default: 1
+    desc: page number (10 results per page)
+
+output:
+  type: array
+  fields: [name, version, description, url, downloads_total, downloads_recent]
+
+steps:
+  - goto: "https://crates.io/search?q={{args.query}}&page={{args.page}}"
+  - wait: ".crate-row"
+  - eval: search.js

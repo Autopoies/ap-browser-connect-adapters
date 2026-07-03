@@ -1,0 +1,25 @@
+site: hf
+name: top
+description: Fetch top trending models from Hugging Face
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of models to return
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll-to-bottom count to trigger lazy loading
+
+output:
+  type: array
+  fields: [model_id, url, updated]
+
+steps:
+  - goto: "https://huggingface.co/models?sort=trending"
+  - wait: "article"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: top.js

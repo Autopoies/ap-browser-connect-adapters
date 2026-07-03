@@ -1,0 +1,22 @@
+site: apple-podcasts
+name: episodes
+description: Get visible episodes for an Apple Podcasts show
+
+args:
+  id:
+    type: string
+    required: true
+    desc: podcast path slug and id, e.g. hard-fork/id1528594034
+  limit:
+    type: int
+    default: 20
+    desc: max episodes
+
+output:
+  type: array
+  fields: [title, date, duration, url]
+
+steps:
+  - goto: "https://podcasts.apple.com/us/podcast/{{args.id}}"
+  - wait: "a[href*='?i=']"
+  - eval: episodes.js

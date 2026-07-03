@@ -1,0 +1,25 @@
+site: github
+name: trending
+description: Fetch GitHub trending repositories
+
+args:
+  since:
+    type: string
+    default: daily
+    desc: time window — daily | weekly | monthly
+  language:
+    type: string
+    desc: filter by programming language (e.g. rust, python). Empty = all languages.
+  limit:
+    type: int
+    default: 25
+    desc: max number of repositories
+
+output:
+  type: array
+  fields: [repo, url, description, language, stars_total, forks, stars_period]
+
+steps:
+  - goto: "https://github.com/trending/{{args.language}}?since={{args.since}}"
+  - wait: "article.Box-row"
+  - eval: trending.js

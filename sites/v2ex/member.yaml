@@ -1,0 +1,22 @@
+site: v2ex
+name: member
+description: Fetch a V2EX member's recent topics
+
+args:
+  username:
+    type: string
+    required: true
+    desc: v2ex username
+  limit:
+    type: int
+    default: 20
+    desc: max number of topics
+
+output:
+  type: array
+  fields: [title, url]
+
+steps:
+  - goto: "https://www.v2ex.com/member/{{args.username}}"
+  - wait: "a[href*='/t/']"
+  - eval: member.js

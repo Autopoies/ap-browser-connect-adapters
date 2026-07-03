@@ -1,0 +1,18 @@
+site: bilibili
+name: video
+description: Fetch Bilibili video metadata
+
+args:
+  bvid:
+    type: string
+    required: true
+    desc: video BV id (e.g. "BVxxxx")
+
+output:
+  type: object
+  fields: [bvid, url, title, up, description, likes]
+
+steps:
+  - goto: "https://www.bilibili.com/video/{{args.bvid}}"
+  - wait: "h1.video-title, [class*='video-title']"
+  - eval: video.js

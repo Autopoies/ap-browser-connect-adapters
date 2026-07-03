@@ -1,0 +1,4 @@
+site: jike
+domain: okjike.com
+description: 即刻 search; public web often requires login
+login_url: https://web.okjike.com/

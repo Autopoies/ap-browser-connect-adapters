@@ -1,0 +1,18 @@
+site: xiaoyuzhou
+name: top
+description: Fetch visible trending/recommended podcasts from Xiaoyuzhou home
+
+args:
+  limit:
+    type: int
+    default: 20
+    desc: max results
+
+output:
+  type: array
+  fields: [title, url]
+
+steps:
+  - goto: "https://www.xiaoyuzhoufm.com/"
+  - wait: "body"
+  - eval: top.js

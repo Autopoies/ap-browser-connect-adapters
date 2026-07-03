@@ -1,0 +1,18 @@
+site: yahoo-finance
+name: quote
+description: Get a stock quote from Yahoo Finance
+
+args:
+  symbol:
+    type: string
+    required: true
+    desc: ticker symbol, e.g. AAPL
+
+output:
+  type: array
+  fields: [symbol, price, change, change_percent, market_cap, pe_ratio, volume, previous_close]
+
+steps:
+  - goto: "https://finance.yahoo.com/quote/{{args.symbol}}"
+  - wait: "body"
+  - eval: quote.js

@@ -1,0 +1,22 @@
+site: sinablog
+name: search
+description: Search Sina content for blog keywords
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 10
+    desc: max results
+
+output:
+  type: array
+  fields: [title, url, source, time]
+
+steps:
+  - goto: "https://search.sina.com.cn/?q={{args.query}}&c=blog"
+  - wait: "a[href*='k.sina.com.cn'], a[href*='blog.sina.com.cn']"
+  - eval: search.js

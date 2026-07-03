@@ -1,0 +1,18 @@
+site: steam
+name: specials
+description: Fetch current Steam game specials (discounts)
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of games
+
+output:
+  type: array
+  fields: [appid, title, url, released, discount_pct, original_price, final_price, price_cents]
+
+steps:
+  - goto: "https://store.steampowered.com/search/?filter=specials"
+  - wait: "a.search_result_row"
+  - eval: specials.js

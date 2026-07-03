@@ -1,0 +1,22 @@
+site: weread
+name: search
+description: Search books on WeRead web
+
+args:
+  query:
+    type: string
+    required: true
+    desc: book name keyword
+  limit:
+    type: int
+    default: 20
+    desc: max books
+
+output:
+  type: array
+  fields: [title, author, url]
+
+steps:
+  - goto: "https://weread.qq.com/web#search?bookName={{args.query}}"
+  - wait: "body"
+  - eval: search.js

@@ -1,0 +1,26 @@
+site: reddit
+name: top
+description: Fetch top posts from a subreddit over a time window (no login)
+
+args:
+  subreddit:
+    type: string
+    required: true
+    desc: subreddit name
+  period:
+    type: string
+    default: day
+    desc: time window — hour | day | week | month | year | all
+  limit:
+    type: int
+    default: 25
+    desc: max number of posts
+
+output:
+  type: array
+  fields: [title, url, permalink, score, num_comments, author, subreddit]
+
+steps:
+  - goto: "https://www.reddit.com/r/{{args.subreddit}}/top/.json?limit={{args.limit}}&t={{args.period}}"
+  - wait: "pre"
+  - eval: hot.js

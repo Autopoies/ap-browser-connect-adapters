@@ -1,0 +1,29 @@
+site: bloomberg
+name: news
+description: Read Bloomberg headlines from a section
+
+args:
+  section:
+    type: string
+    default: markets
+    desc: section path such as markets or technology
+  limit:
+    type: int
+    default: 10
+    desc: max headlines
+  scrolls:
+    type: int
+    default: 1
+    desc: scroll passes before extraction
+
+output:
+  type: array
+  fields: [title, url, section]
+
+steps:
+  - goto: "https://www.bloomberg.com/{{args.section}}"
+  - wait: "a[href*='/news/articles/']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: news.js

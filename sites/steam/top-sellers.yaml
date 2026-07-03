@@ -1,0 +1,18 @@
+site: steam
+name: top-sellers
+description: Fetch top-selling games from Steam
+
+args:
+  limit:
+    type: int
+    default: 20
+    desc: max number of games
+
+output:
+  type: array
+  fields: [appid, title, url, released, price_text, price_cents, discount_pct]
+
+steps:
+  - goto: "https://store.steampowered.com/search/?filter=topsellers"
+  - wait: "a.search_result_row"
+  - eval: top-sellers.js

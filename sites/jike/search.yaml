@@ -1,0 +1,22 @@
+site: jike
+name: search
+description: Search visible Jike web content when logged in
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 20
+    desc: max results
+
+output:
+  type: array
+  fields: [title, url, text]
+
+steps:
+  - goto: "https://web.okjike.com/search?keyword={{args.query}}"
+  - wait: "body"
+  - eval: search.js

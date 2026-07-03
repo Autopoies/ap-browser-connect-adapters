@@ -1,0 +1,29 @@
+site: github
+name: stargazers
+description: List users who starred a GitHub repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  limit:
+    type: int
+    default: 50
+    desc: max number of users per page
+  scrolls:
+    type: int
+    default: 3
+    desc: scroll count (stargazers page lazy-loads)
+
+output:
+  type: array
+  fields: [username, url]
+
+steps:
+  - goto: "https://github.com/{{args.repo}}/stargazers"
+  - wait: "h3 a"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: stargazers.js

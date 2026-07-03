@@ -1,0 +1,21 @@
+site: barchart
+name: flow
+description: Get visible unusual stock options activity from Barchart
+
+args:
+  limit:
+    type: int
+    default: 20
+    desc: max rows
+
+output:
+  type: array
+  fields: [symbol, expiration, type, strike, last, volume, open_interest]
+
+steps:
+  - goto: "https://www.barchart.com/options/unusual-activity/stocks"
+  - wait: "body"
+  - scroll:
+      count: 1
+      pause_ms: 1000
+  - eval: flow.js

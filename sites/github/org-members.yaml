@@ -1,0 +1,22 @@
+site: github
+name: org-members
+description: List public members of a GitHub organization
+
+args:
+  org:
+    type: string
+    required: true
+    desc: organization name
+  limit:
+    type: int
+    default: 30
+    desc: max number of members per page
+
+output:
+  type: array
+  fields: [username, url]
+
+steps:
+  - goto: "https://api.github.com/orgs/{{args.org}}/members?per_page={{args.limit}}"
+  - wait: "pre"
+  - eval: org-members.js

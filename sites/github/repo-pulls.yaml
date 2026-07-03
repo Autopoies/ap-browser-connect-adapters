@@ -1,0 +1,30 @@
+site: github
+name: repo-pulls
+description: Fetch recent pull requests for a repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  state:
+    type: string
+    default: open
+    desc: PR state — open | closed | all
+  limit:
+    type: int
+    default: 30
+    desc: max number of PRs (30 per page)
+  page:
+    type: int
+    default: 1
+    desc: page number
+
+output:
+  type: array
+  fields: [number, title, url, state, author, head, base, created_at]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/pulls?state={{args.state}}&per_page={{args.limit}}&page={{args.page}}"
+  - wait: "pre"
+  - eval: repo-pulls.js

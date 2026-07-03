@@ -1,0 +1,18 @@
+site: hackernews
+name: item
+description: Fetch a single HackerNews story + top-level comments
+
+args:
+  id:
+    type: string
+    required: true
+    desc: story id
+
+output:
+  type: object
+  fields: [id, title, url, points, user, age, body, comments]
+
+steps:
+  - goto: "https://news.ycombinator.com/item?id={{args.id}}"
+  - wait: ".titleline"
+  - eval: item.js

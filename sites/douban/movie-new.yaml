@@ -1,0 +1,18 @@
+site: douban
+name: movie-new
+description: 豆瓣电影新片榜
+
+args:
+  limit:
+    type: int
+    default: 10
+    desc: max number of movies
+
+output:
+  type: array
+  fields: [title, url, meta]
+
+steps:
+  - goto: "https://movie.douban.com/chart"
+  - wait: "tr.item"
+  - eval: movie-new.js

@@ -1,0 +1,26 @@
+site: github
+name: file
+description: Fetch raw file content from a GitHub repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  path:
+    type: string
+    required: true
+    desc: file path within repo (e.g. "Cargo.toml", "README.md")
+  branch:
+    type: string
+    default: master
+    desc: branch name; omit to use default
+
+output:
+  type: object
+  fields: [repo, path, branch, url, content]
+
+steps:
+  - goto: "https://raw.githubusercontent.com/{{args.repo}}/{{args.branch}}/{{args.path}}"
+  - wait: "body"
+  - eval: file.js

@@ -1,0 +1,25 @@
+site: zhihu
+name: feed
+description: 知乎推荐 Feed（需登录态）
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: 最多返回条数（最多建议 60，再多需增加 scrolls）
+  scrolls:
+    type: int
+    default: 2
+    desc: 滚动加载次数（每次约增加 10-20 条）
+
+output:
+  type: array
+  fields: [title, url, author, excerpt]
+
+steps:
+  - goto: "https://www.zhihu.com/"
+  - wait: ".TopstoryItem"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: feed.js

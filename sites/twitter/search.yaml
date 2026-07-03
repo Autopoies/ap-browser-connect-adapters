@@ -1,0 +1,31 @@
+site: twitter
+name: search
+description: Search top tweets on X
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search query
+  limit:
+    type: int
+    default: 20
+    desc: max number of tweets
+  scrolls:
+    type: int
+    default: 3
+    desc: scroll count for infinite feed
+
+output:
+  type: array
+  fields: [author, handle, text, url, time, replies, retweets, likes]
+
+steps:
+  - goto: "https://x.com/search?q={{args.query}}&src=typed_query&f=top"
+  - wait:
+      selector: "article[data-testid='tweet']"
+      timeout_ms: 15000
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2500
+  - eval: search.js

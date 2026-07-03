@@ -1,0 +1,22 @@
+site: hackernews
+name: jobs
+description: Fetch Who is Hiring posts from HN
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of jobs per page
+  page:
+    type: int
+    default: 1
+    desc: page number
+
+output:
+  type: array
+  fields: [rank, title, url, points, comments]
+
+steps:
+  - goto: "https://news.ycombinator.com/jobs?p={{args.page}}"
+  - wait: ".athing"
+  - eval: top.js

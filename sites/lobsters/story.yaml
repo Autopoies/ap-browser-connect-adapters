@@ -1,0 +1,29 @@
+site: lobsters
+name: story
+description: Fetch a Lobsters story with comments
+
+args:
+  shortid:
+    type: string
+    required: true
+    desc: story shortid (from URL like /s/<shortid>/...)
+  limit:
+    type: int
+    default: 30
+    desc: max number of comments to return
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll count (comments lazy-load)
+
+output:
+  type: object
+  fields: [title, url, comments]
+
+steps:
+  - goto: "https://lobste.rs/s/{{args.shortid}}"
+  - wait: ".comment"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 800
+  - eval: story.js

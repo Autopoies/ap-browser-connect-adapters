@@ -1,0 +1,18 @@
+site: github
+name: repo
+description: Fetch metadata for a GitHub repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path (e.g. "tokio-rs/tokio")
+
+output:
+  type: object
+  fields: [repo, url, about, stars, forks, watchers, primary_language, topics]
+
+steps:
+  - goto: "https://github.com/{{args.repo}}"
+  - wait: "#repo-stars-counter-star"
+  - eval: repo.js

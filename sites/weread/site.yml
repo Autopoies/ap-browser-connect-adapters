@@ -1,0 +1,4 @@
+site: weread
+domain: weread.qq.com
+description: 微信读书 public web rankings and search
+login_url: https://weread.qq.com/web/login

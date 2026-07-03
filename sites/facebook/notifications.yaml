@@ -1,0 +1,23 @@
+site: facebook
+name: notifications
+description: Fetch Facebook notifications (requires login)
+
+args:
+  limit:
+    type: int
+    default: 20
+  scrolls:
+    type: int
+    default: 1
+
+output:
+  type: array
+  fields: [text, url, time]
+
+steps:
+  - goto: "https://www.facebook.com/notifications"
+  - wait: "body"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2200
+  - eval: notifications.js

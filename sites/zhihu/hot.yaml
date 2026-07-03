@@ -1,0 +1,18 @@
+site: zhihu
+name: hot
+description: 知乎热榜（需登录态）
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: 最多返回条数
+
+output:
+  type: array
+  fields: [rank, title, url, heat, excerpt, tag]
+
+steps:
+  - goto: "https://www.zhihu.com/hot"
+  - wait: ".HotItem"
+  - eval: hot.js

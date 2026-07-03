@@ -1,0 +1,18 @@
+site: bbc
+name: news
+description: Fetch top BBC News headlines from the front page
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of headlines
+
+output:
+  type: array
+  fields: [title, url]
+
+steps:
+  - goto: "https://www.bbc.com/news"
+  - wait: "[data-testid='card-headline']"
+  - eval: news.js

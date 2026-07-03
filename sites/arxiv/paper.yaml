@@ -1,0 +1,18 @@
+site: arxiv
+name: paper
+description: Fetch metadata for an arXiv paper
+
+args:
+  id:
+    type: string
+    required: true
+    desc: arxiv paper id (e.g. "2606.32036")
+
+output:
+  type: object
+  fields: [id, title, authors, abstract, subjects, date, pdf_url]
+
+steps:
+  - goto: "https://arxiv.org/abs/{{args.id}}"
+  - wait: ".abstract"
+  - eval: paper.js

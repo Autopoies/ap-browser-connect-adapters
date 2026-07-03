@@ -1,0 +1,18 @@
+site: github
+name: user
+description: Fetch a GitHub user profile
+
+args:
+  username:
+    type: string
+    required: true
+    desc: github username
+
+output:
+  type: object
+  fields: [username, name, bio, followers, following, repos, location, company]
+
+steps:
+  - goto: "https://github.com/{{args.username}}"
+  - wait: ".p-name"
+  - eval: user.js

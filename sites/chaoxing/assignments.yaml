@@ -1,0 +1,18 @@
+site: chaoxing
+name: assignments
+description: List visible Chaoxing assignments when logged in
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max assignments
+
+output:
+  type: array
+  fields: [title, url, status]
+
+steps:
+  - goto: "https://i.chaoxing.com/"
+  - wait: "body"
+  - eval: assignments.js

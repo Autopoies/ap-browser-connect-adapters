@@ -1,0 +1,18 @@
+site: wikipedia
+name: summary
+description: Fetch the lead summary of a Wikipedia article
+
+args:
+  title:
+    type: string
+    required: true
+    desc: article title (e.g. "Rust (programming language)")
+
+output:
+  type: object
+  fields: [title, url, summary]
+
+steps:
+  - goto: "https://en.wikipedia.org/wiki/{{args.title}}"
+  - wait: "#mw-content-text"
+  - eval: summary.js

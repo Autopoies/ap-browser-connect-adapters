@@ -1,0 +1,29 @@
+site: github
+name: user-repos
+description: List a GitHub user/org's public repositories
+
+args:
+  user:
+    type: string
+    required: true
+    desc: username or org name (e.g. "tokio-rs")
+  limit:
+    type: int
+    default: 30
+    desc: max number of repositories
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll-to-bottom count (repos page is lazy-loaded)
+
+output:
+  type: array
+  fields: [name, url, description, language, stars, forks, updated]
+
+steps:
+  - goto: "https://github.com/{{args.user}}?tab=repositories"
+  - wait: "a[itemprop='name codeRepository']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: user-repos.js

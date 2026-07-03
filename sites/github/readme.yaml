@@ -1,0 +1,21 @@
+site: github
+name: readme
+description: Fetch the rendered README for a GitHub repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path (e.g. "tokio-rs/tokio")
+  branch:
+    type: string
+    desc: branch name; omit to use the repo's default branch
+
+output:
+  type: object
+  fields: [repo, url, readme]
+
+steps:
+  - goto: "https://github.com/{{args.repo}}/{{args.branch}}"
+  - wait: "article.markdown-body"
+  - eval: readme.js

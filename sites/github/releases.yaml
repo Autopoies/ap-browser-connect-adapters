@@ -1,0 +1,22 @@
+site: github
+name: releases
+description: Fetch release notes for a GitHub repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path (e.g. "tokio-rs/tokio")
+  limit:
+    type: int
+    default: 10
+    desc: max number of releases
+
+output:
+  type: array
+  fields: [tag, url, date, body]
+
+steps:
+  - goto: "https://github.com/{{args.repo}}/releases"
+  - wait: "section"
+  - eval: releases.js

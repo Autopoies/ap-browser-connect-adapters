@@ -1,0 +1,22 @@
+site: github
+name: tags
+description: List tags in a repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  limit:
+    type: int
+    default: 30
+    desc: max number of tags (30 per page)
+
+output:
+  type: array
+  fields: [name, commit_sha]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/tags?per_page={{args.limit}}"
+  - wait: "pre"
+  - eval: tags.js

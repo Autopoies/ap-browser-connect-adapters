@@ -1,0 +1,4 @@
+site: twitter
+domain: x.com
+description: X (formerly Twitter) — social media platform
+login_url: https://x.com/i/flow/login

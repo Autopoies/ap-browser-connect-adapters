@@ -1,0 +1,23 @@
+site: tiktok
+name: explore
+description: Fetch trending videos from TikTok explore page
+
+args:
+  limit:
+    type: int
+    default: 20
+  scrolls:
+    type: int
+    default: 3
+
+output:
+  type: array
+  fields: [creator, description, url, likes, comments]
+
+steps:
+  - goto: "https://www.tiktok.com/explore"
+  - wait: "a[href*='/video/']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2000
+  - eval: explore.js

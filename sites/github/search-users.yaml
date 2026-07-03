@@ -1,0 +1,22 @@
+site: github
+name: search-users
+description: Search GitHub users
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search query (e.g. "repos:>100 location:tokyo language:rust")
+  limit:
+    type: int
+    default: 30
+    desc: max number of users
+
+output:
+  type: array
+  fields: [username, url, name, followers, public_repos]
+
+steps:
+  - goto: "https://api.github.com/search/users?q={{args.query}}&per_page={{args.limit}}"
+  - wait: "pre"
+  - eval: search-users.js

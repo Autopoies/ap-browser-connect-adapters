@@ -1,0 +1,22 @@
+site: hackernews
+name: front
+description: Fetch HN front page (combined top stories from news/best)
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of stories per page
+  page:
+    type: int
+    default: 1
+    desc: page number
+
+output:
+  type: array
+  fields: [rank, title, url, points, comments]
+
+steps:
+  - goto: "https://news.ycombinator.com/front?p={{args.page}}"
+  - wait: ".athing"
+  - eval: top.js

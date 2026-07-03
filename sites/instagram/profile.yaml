@@ -1,0 +1,26 @@
+site: instagram
+name: profile
+description: Fetch an Instagram profile summary and recent posts (requires login)
+
+args:
+  username:
+    type: string
+    required: true
+  limit:
+    type: int
+    default: 24
+  scrolls:
+    type: int
+    default: 1
+
+output:
+  type: object
+  fields: [name, bio, followers, posts]
+
+steps:
+  - goto: "https://www.instagram.com/{{args.username}}/"
+  - wait: "main"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2200
+  - eval: profile.js

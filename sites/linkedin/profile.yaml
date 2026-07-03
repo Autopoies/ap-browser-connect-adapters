@@ -1,0 +1,23 @@
+site: linkedin
+name: profile
+description: Fetch a LinkedIn profile summary; reports auth wall when login is required
+
+args:
+  username:
+    type: string
+    required: true
+  scrolls:
+    type: int
+    default: 2
+
+output:
+  type: object
+  fields: [blocked, note, name, headline, about, experience]
+
+steps:
+  - goto: "https://www.linkedin.com/in/{{args.username}}/"
+  - wait: "body"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2000
+  - eval: profile.js

@@ -1,0 +1,25 @@
+site: medium
+name: feed
+description: Read Medium programming recommended feed
+
+args:
+  limit:
+    type: int
+    default: 10
+    desc: max articles
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll passes before extraction
+
+output:
+  type: array
+  fields: [title, url, subtitle, author]
+
+steps:
+  - goto: "https://medium.com/tag/programming/recommended"
+  - wait: "article"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: feed.js

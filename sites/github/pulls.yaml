@@ -1,0 +1,22 @@
+site: github
+name: pulls
+description: Search GitHub pull requests across all repos
+
+args:
+  query:
+    type: string
+    required: true
+    desc: GitHub PR search query (e.g. "is:pr sort:comments-desc language:rust")
+  limit:
+    type: int
+    default: 25
+    desc: max number of PRs per page
+
+output:
+  type: array
+  fields: [title, url, repo, number]
+
+steps:
+  - goto: "https://github.com/pulls?q={{args.query}}"
+  - wait: "a[href*='/pull/']"
+  - eval: pulls.js

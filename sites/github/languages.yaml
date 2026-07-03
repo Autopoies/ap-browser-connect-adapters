@@ -1,0 +1,18 @@
+site: github
+name: languages
+description: Fetch language breakdown for a GitHub repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+
+output:
+  type: object
+  fields: [repo, languages]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/languages"
+  - wait: "pre"
+  - eval: languages.js

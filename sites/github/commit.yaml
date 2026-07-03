@@ -1,0 +1,22 @@
+site: github
+name: commit
+description: Fetch details for a single commit
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  sha:
+    type: string
+    required: true
+    desc: commit SHA (full or abbreviated)
+
+output:
+  type: object
+  fields: [sha, message, author, date, additions, deletions, files_changed]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/commits/{{args.sha}}"
+  - wait: "pre"
+  - eval: commit.js

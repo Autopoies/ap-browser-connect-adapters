@@ -1,0 +1,29 @@
+site: medium
+name: search
+description: Search Medium articles
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 10
+    desc: max articles
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll passes before extraction
+
+output:
+  type: array
+  fields: [title, url, subtitle, author]
+
+steps:
+  - goto: "https://medium.com/search?q={{args.query}}"
+  - wait: "article"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: search.js

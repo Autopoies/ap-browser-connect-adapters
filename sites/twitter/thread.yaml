@@ -1,0 +1,35 @@
+site: twitter
+name: thread
+description: Fetch a tweet thread/conversation and visible replies
+
+args:
+  username:
+    type: string
+    required: true
+    desc: X username without @
+  id:
+    type: string
+    required: true
+    desc: tweet status id
+  limit:
+    type: int
+    default: 50
+    desc: max number of tweets/replies
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll count for replies
+
+output:
+  type: array
+  fields: [author, handle, text, url, time, replies, retweets, likes]
+
+steps:
+  - goto: "https://x.com/{{args.username}}/status/{{args.id}}"
+  - wait:
+      selector: "article[data-testid='tweet']"
+      timeout_ms: 15000
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2500
+  - eval: thread.js

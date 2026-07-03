@@ -1,0 +1,26 @@
+site: arxiv
+name: search
+description: Search arXiv papers by query (all fields)
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search query
+  limit:
+    type: int
+    default: 20
+    desc: max number of papers per page
+  page:
+    type: int
+    default: 1
+    desc: page number (50 results per page)
+
+output:
+  type: array
+  fields: [arxiv_id, title, url, authors, abstract, subjects]
+
+steps:
+  - goto: "https://arxiv.org/search/?searchtype=all&query={{args.query}}&start={{eval args.page - 1 * 50}}"
+  - wait: ".arxiv-result"
+  - eval: search.js

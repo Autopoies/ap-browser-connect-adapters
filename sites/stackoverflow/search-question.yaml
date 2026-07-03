@@ -1,0 +1,26 @@
+site: stackoverflow
+name: search-question
+description: Free-text search Stack Overflow questions
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search query
+  limit:
+    type: int
+    default: 20
+    desc: max number of questions per page
+  page:
+    type: int
+    default: 1
+    desc: page number (15 per page)
+
+output:
+  type: array
+  fields: [title, url, excerpt, votes, answers, views, tags]
+
+steps:
+  - goto: "https://stackoverflow.com/search?q={{args.query}}&page={{args.page}}"
+  - wait: ".s-post-summary"
+  - eval: search.js

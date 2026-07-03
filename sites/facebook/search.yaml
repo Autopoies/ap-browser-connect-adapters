@@ -1,0 +1,26 @@
+site: facebook
+name: search
+description: Search Facebook top results (requires login)
+
+args:
+  query:
+    type: string
+    required: true
+  limit:
+    type: int
+    default: 20
+  scrolls:
+    type: int
+    default: 2
+
+output:
+  type: array
+  fields: [type, title, text, url, time]
+
+steps:
+  - goto: "https://www.facebook.com/search/top?q={{args.query}}"
+  - wait: "[role='main']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2200
+  - eval: search.js

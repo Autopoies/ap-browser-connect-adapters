@@ -1,0 +1,25 @@
+site: steam
+name: my-wishlist
+description: Fetch your own Steam wishlist (requires Chrome login)
+
+args:
+  limit:
+    type: int
+    default: 50
+    desc: max number of games
+  scrolls:
+    type: int
+    default: 3
+    desc: scroll-to-bottom count (wishlist is virtualized; needs scrolling to load all entries)
+
+output:
+  type: array
+  fields: [appid, title, url, discount_pct, original_price, final_price]
+
+steps:
+  - goto: "https://store.steampowered.com/wishlist/"
+  - wait: "a[href*='/app/']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1500
+  - eval: wishlist.js

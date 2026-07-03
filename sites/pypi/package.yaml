@@ -1,0 +1,18 @@
+site: pypi
+name: package
+description: Fetch PyPI package metadata
+
+args:
+  name:
+    type: string
+    required: true
+    desc: package name
+
+output:
+  type: object
+  fields: [name, version, description, release_date]
+
+steps:
+  - goto: "https://pypi.org/project/{{args.name}}/"
+  - wait: ".package-header__name"
+  - eval: package.js

@@ -1,0 +1,22 @@
+site: hackernews
+name: user-stories
+description: Fetch stories submitted by a HackerNews user (via Algolia API)
+
+args:
+  username:
+    type: string
+    required: true
+    desc: HN username
+  limit:
+    type: int
+    default: 20
+    desc: max number of stories (Algolia returns 20 per page)
+
+output:
+  type: array
+  fields: [id, title, url, points, num_comments, created_at]
+
+steps:
+  - goto: "https://hn.algolia.com/api/v1/search?tags=author_{{args.username}},story"
+  - wait: "pre"
+  - eval: user-stories.js

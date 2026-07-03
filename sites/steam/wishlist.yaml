@@ -1,0 +1,22 @@
+site: steam
+name: wishlist
+description: Fetch a Steam user's wishlist by profile id
+
+args:
+  profile:
+    type: string
+    required: true
+    desc: profile id (e.g. "Maolon") or numeric SteamID64 (e.g. "76561198071092915")
+  limit:
+    type: int
+    default: 50
+    desc: max number of games
+
+output:
+  type: array
+  fields: [appid, title, url, discount_pct, original_price, final_price]
+
+steps:
+  - goto: "https://store.steampowered.com/wishlist/{{args.profile}}/"
+  - wait: "a[href*='/app/']"
+  - eval: wishlist.js

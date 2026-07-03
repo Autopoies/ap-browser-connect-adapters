@@ -1,0 +1,22 @@
+site: github
+name: user-events
+description: Fetch a GitHub user's recent public activity
+
+args:
+  username:
+    type: string
+    required: true
+    desc: github username
+  limit:
+    type: int
+    default: 30
+    desc: max number of events (30 per page)
+
+output:
+  type: array
+  fields: [type, repo, created_at, payload_summary]
+
+steps:
+  - goto: "https://api.github.com/users/{{args.username}}/events/public"
+  - wait: "pre"
+  - eval: user-events.js

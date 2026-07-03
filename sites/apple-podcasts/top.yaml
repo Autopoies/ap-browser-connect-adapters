@@ -1,0 +1,26 @@
+site: apple-podcasts
+name: top
+description: Get Apple Podcasts top charts for a genre
+
+args:
+  genre:
+    type: string
+    default: all
+    desc: genre slug, e.g. technology; use all for charts homepage
+  genre_id:
+    type: string
+    default: ""
+    desc: Apple genre id, e.g. 1318 for Technology
+  limit:
+    type: int
+    default: 20
+    desc: max results
+
+output:
+  type: array
+  fields: [rank, title, url, podcast_id]
+
+steps:
+  - goto: "https://podcasts.apple.com/us/charts"
+  - wait: "a[href*='/podcast/']"
+  - eval: top.js

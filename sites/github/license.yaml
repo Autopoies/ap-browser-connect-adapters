@@ -1,0 +1,18 @@
+site: github
+name: license
+description: Fetch license info for a GitHub repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+
+output:
+  type: object
+  fields: [repo, license_name, spdx_id, license_url]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/license"
+  - wait: "pre"
+  - eval: license.js

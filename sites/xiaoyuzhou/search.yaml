@@ -1,0 +1,22 @@
+site: xiaoyuzhou
+name: search
+description: Search Xiaoyuzhou podcasts when the public web route is available
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 20
+    desc: max results
+
+output:
+  type: array
+  fields: [title, url, description]
+
+steps:
+  - goto: "https://www.xiaoyuzhoufm.com/search?q={{args.query}}"
+  - wait: "main"
+  - eval: search.js

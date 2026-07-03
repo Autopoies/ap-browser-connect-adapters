@@ -1,0 +1,30 @@
+site: stackoverflow
+name: search
+description: Search questions tagged with a topic, sorted by Votes/Newest/Frequent
+
+args:
+  tag:
+    type: string
+    required: true
+    desc: tag name (e.g. rust, python, react)
+  tab:
+    type: string
+    default: Votes
+    desc: sort tab — Votes | Newest | Frequent | Bounties | Unanswered
+  limit:
+    type: int
+    default: 20
+    desc: max number of questions per page
+  page:
+    type: int
+    default: 1
+    desc: page number (15 questions per page)
+
+output:
+  type: array
+  fields: [title, url, excerpt, votes, answers, views, tags]
+
+steps:
+  - goto: "https://stackoverflow.com/questions/tagged/{{args.tag}}?tab={{args.tab}}&page={{args.page}}"
+  - wait: ".s-post-summary"
+  - eval: search.js

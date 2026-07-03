@@ -1,0 +1,18 @@
+site: linux-do
+name: top
+description: Fetch top topics from LINUX DO
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of topics
+
+output:
+  type: array
+  fields: [title, url, category, replies, views, activity]
+
+steps:
+  - goto: "https://linux.do/top"
+  - wait: "tr.topic-list-item"
+  - eval: top.js

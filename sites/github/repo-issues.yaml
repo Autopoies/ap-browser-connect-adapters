@@ -1,0 +1,30 @@
+site: github
+name: repo-issues
+description: Fetch recent open issues for a repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path
+  state:
+    type: string
+    default: open
+    desc: issue state — open | closed | all
+  limit:
+    type: int
+    default: 30
+    desc: max number of issues (30 per page)
+  page:
+    type: int
+    default: 1
+    desc: page number
+
+output:
+  type: array
+  fields: [number, title, url, state, author, comments, created_at]
+
+steps:
+  - goto: "https://api.github.com/repos/{{args.repo}}/issues?state={{args.state}}&per_page={{args.limit}}&page={{args.page}}"
+  - wait: "pre"
+  - eval: repo-issues.js

@@ -1,0 +1,29 @@
+site: github
+name: commits
+description: Fetch recent commits for a repository
+
+args:
+  repo:
+    type: string
+    required: true
+    desc: repository path (e.g. "tokio-rs/tokio")
+  limit:
+    type: int
+    default: 30
+    desc: max number of commits (35 per page)
+  scrolls:
+    type: int
+    default: 1
+    desc: scroll count for lazy-loaded commits
+
+output:
+  type: array
+  fields: [sha, message, url, author, date]
+
+steps:
+  - goto: "https://github.com/{{args.repo}}/commits"
+  - wait: "li.CommitRow, li[class*='CommitRow']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: commits.js

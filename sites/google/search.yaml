@@ -1,0 +1,26 @@
+site: google
+name: search
+description: Search Google web results
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 10
+    desc: max results
+  page:
+    type: int
+    default: 1
+    desc: result page
+
+output:
+  type: array
+  fields: [title, url, snippet]
+
+steps:
+  - goto: "https://www.google.com/search?q={{args.query}}&start={{eval args.page - 1 * 10}}"
+  - wait: "h3"
+  - eval: search.js

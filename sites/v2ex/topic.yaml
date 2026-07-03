@@ -1,0 +1,29 @@
+site: v2ex
+name: topic
+description: Fetch a V2EX topic with replies
+
+args:
+  id:
+    type: string
+    required: true
+    desc: topic id
+  limit:
+    type: int
+    default: 30
+    desc: max number of replies
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll count to load more replies
+
+output:
+  type: object
+  fields: [id, title, content, replies]
+
+steps:
+  - goto: "https://www.v2ex.com/t/{{args.id}}"
+  - wait: ".topic_content"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 800
+  - eval: topic.js

@@ -1,0 +1,22 @@
+site: v2ex
+name: tab
+description: Fetch topics from a V2EX tab
+
+args:
+  tab:
+    type: string
+    required: true
+    desc: tab name — tech | creative | play | jobs | deals | city | qna | all | hot | latest | apple
+  limit:
+    type: int
+    default: 30
+    desc: max number of topics
+
+output:
+  type: array
+  fields: [title, url, node, author, replies]
+
+steps:
+  - goto: "https://www.v2ex.com/?tab={{args.tab}}"
+  - wait: ".cell.item"
+  - eval: hot.js

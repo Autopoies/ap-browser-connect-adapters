@@ -1,0 +1,25 @@
+site: gist
+name: search
+description: Search GitHub Gists
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 20
+    desc: max number of gists
+
+output:
+  type: array
+  fields: [gist_id, url, filename, author]
+
+steps:
+  - goto: "https://gist.github.com/search?q={{args.query}}"
+  - wait: ".gist-snippet"
+  - scroll:
+      count: 1
+      pause_ms: 1500
+  - eval: search.js

@@ -1,0 +1,29 @@
+site: substack
+name: search
+description: Search Substack posts
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 10
+    desc: max posts
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll passes before extraction
+
+output:
+  type: array
+  fields: [title, url, publication, author]
+
+steps:
+  - goto: "https://substack.com/search/posts?search={{args.query}}"
+  - wait: "a[href*='/p/'], a[href*='/note/']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: search.js

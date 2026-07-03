@@ -1,0 +1,4 @@
+site: chaoxing
+domain: chaoxing.com
+description: 超星学习通 lists; requires login
+login_url: https://passport2.chaoxing.com/login

@@ -1,0 +1,23 @@
+site: facebook
+name: feed
+description: Fetch posts from the Facebook news feed (requires login)
+
+args:
+  limit:
+    type: int
+    default: 20
+  scrolls:
+    type: int
+    default: 3
+
+output:
+  type: array
+  fields: [author, text, url, time]
+
+steps:
+  - goto: "https://www.facebook.com/"
+  - wait: "[role='article']"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 2200
+  - eval: feed.js

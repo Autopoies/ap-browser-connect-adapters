@@ -1,0 +1,25 @@
+site: bilibili
+name: home
+description: Fetch recommended videos from the Bilibili homepage
+
+args:
+  limit:
+    type: int
+    default: 30
+    desc: max number of videos to return
+  scrolls:
+    type: int
+    default: 2
+    desc: scroll-to-bottom count to trigger lazy loading
+
+output:
+  type: array
+  fields: [title, bvid, url, up, duration]
+
+steps:
+  - goto: "https://www.bilibili.com/"
+  - wait: ".bili-video-card__info--tit"
+  - scroll:
+      count: "{{args.scrolls}}"
+      pause_ms: 1000
+  - eval: home.js

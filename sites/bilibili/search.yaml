@@ -1,0 +1,26 @@
+site: bilibili
+name: search
+description: Search videos on Bilibili
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  page:
+    type: int
+    default: 1
+    desc: page number (42 results per page)
+  limit:
+    type: int
+    default: 42
+    desc: max number of videos per page
+
+output:
+  type: array
+  fields: [title, bvid, up, plays, danmaku]
+
+steps:
+  - goto: "https://search.bilibili.com/all?keyword={{args.query}}&page={{args.page}}"
+  - wait: ".bili-video-card"
+  - eval: search.js

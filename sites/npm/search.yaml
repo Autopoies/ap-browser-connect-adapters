@@ -1,0 +1,22 @@
+site: npm
+name: search
+description: Search npm packages
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keyword
+  limit:
+    type: int
+    default: 20
+    desc: max number of packages (20 per page)
+
+output:
+  type: array
+  fields: [name, url, description, version]
+
+steps:
+  - goto: "https://www.npmjs.com/search?q={{args.query}}"
+  - wait: "section a[href*='/package/']"
+  - eval: search.js

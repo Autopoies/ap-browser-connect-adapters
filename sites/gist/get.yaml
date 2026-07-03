@@ -1,0 +1,21 @@
+site: gist
+name: get
+description: Fetch a GitHub Gist content
+
+args:
+  id:
+    type: string
+    required: true
+    desc: gist id (32-char hex)
+  author:
+    type: string
+    desc: gist author username; omit to fetch by id only
+
+output:
+  type: object
+  fields: [id, url, content]
+
+steps:
+  - goto: "https://gist.github.com/{{args.author}}/{{args.id}}"
+  - wait: ".gist-content"
+  - eval: get.js

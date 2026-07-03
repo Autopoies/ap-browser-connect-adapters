@@ -1,0 +1,4 @@
+site: zhihu
+domain: www.zhihu.com
+login_url: https://www.zhihu.com/signin
+description: 知乎 — 中文问答社区。热榜与搜索需登录态。
