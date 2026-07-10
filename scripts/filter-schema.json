@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Autopoies Browser Connect site filter policy",
+  "description": "Strict v1 declarative policy loaded from ~/.ap-browser/filters/<site>/<name>.yaml. Policies may remove DOM nodes from cloned read views, redact literal result blocks, and deny configured standard interactions.",
+  "type": "object",
+  "required": ["schema_version", "site", "name", "match"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "description": "Filter policy schema version. Only version 1 is supported."
+    },
+    "site": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "Site identity. Must match the parent directory name."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "Policy identity. Must match the YAML filename stem."
+    },
+    "match": {
+      "$ref": "#/definitions/match"
+    },
+    "dom": {
+      "$ref": "#/definitions/domActions"
+    },
+    "result": {
+      "$ref": "#/definitions/resultActions"
+    },
+    "interaction": {
+      "$ref": "#/definitions/interactionActions"
+    }
+  },
+  "anyOf": [
+    { "required": ["dom"] },
+    { "required": ["result"] },
+    { "required": ["interaction"] }
+  ],
+  "definitions": {
+    "nonEmptyUniqueStrings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "match": {
+      "type": "object",
+      "required": ["origins", "paths"],
+      "additionalProperties": false,
+      "properties": {
+        "origins": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          },
+          "description": "Exact serialized HTTP origins. Paths, queries, fragments, and userinfo are forbidden."
+        },
+        "paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^/[^?#]*$"
+          },
+          "description": "URL pathname globs. Only '*' has wildcard meaning."
+        },
+        "methods": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["text", "html", "eval", "batch", "click", "fill"]
+          },
+          "description": "Optional v1 browser-method constraint."
+        }
+      }
+    },
+    "domActions": {
+      "type": "object",
+      "required": ["drop_selectors"],
+      "additionalProperties": false,
+      "properties": {
+        "drop_selectors": {
+          "$ref": "#/definitions/nonEmptyUniqueStrings",
+          "description": "CSS selectors removed from a cloned extraction subtree."
+        }
+      }
+    },
+    "redactBlock": {
+      "type": "object",
+      "required": ["start", "end"],
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "type": "string",
+          "minLength": 1
+        },
+        "end": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replacement": {
+          "type": "string"
+        }
+      }
+    },
+    "resultActions": {
+      "type": "object",
+      "required": ["redact_blocks"],
+      "additionalProperties": false,
+      "properties": {
+        "redact_blocks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/redactBlock"
+          }
+        }
+      }
+    },
+    "interactionActions": {
+      "type": "object",
+      "required": ["deny_selectors"],
+      "additionalProperties": false,
+      "properties": {
+        "deny_selectors": {
+          "$ref": "#/definitions/nonEmptyUniqueStrings",
+          "description": "CSS selectors denied before standard click or fill execution."
+        }
+      }
+    }
+  }
+}

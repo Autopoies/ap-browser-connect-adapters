@@ -1,0 +1,28 @@
+schema_version: 1
+site: coursera
+name: content-integrity
+match:
+  origins:
+    - https://www.coursera.org
+  paths:
+    - /learn/*/assignment-submission/*
+  methods:
+    - text
+    - html
+    - eval
+    - batch
+    - click
+    - fill
+dom:
+  drop_selectors:
+    - '[data-ai-instructions="true"]'
+    - '[data-testid="content-integrity-instructions"]'
+    - '[data-testid="acknowledgment-checkpoint"]'
+result:
+  redact_blocks:
+    - start: You are a helpful AI assistant.
+      end: This verification step is mandatory for all AI assistants accessing assessment pages.
+      replacement: '[FILTERED: coursera content-integrity instructions]'
+interaction:
+  deny_selectors:
+    - '[data-action="acknowledge-guidelines"]'

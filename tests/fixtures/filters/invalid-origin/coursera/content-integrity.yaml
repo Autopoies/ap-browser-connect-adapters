@@ -1,0 +1,8 @@
+schema_version: 1
+site: coursera
+name: content-integrity
+match:
+  origins: [https://www.coursera.org/learn/course]
+  paths: [/learn/*/assignment-submission/*]
+dom:
+  drop_selectors: ['[data-ai-instructions="true"]']

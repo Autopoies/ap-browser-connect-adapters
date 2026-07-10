@@ -1,4 +1,4 @@
-name: Lint adapters
+name: Lint runtime data
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  yaml-lint:
+  runtime-data-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,14 +17,8 @@ jobs:
       - name: Install jsonschema
         run: pip install jsonschema pyyaml
       - name: Lint adapter YAML
-        run: python scripts/lint_adapters.py knowledge/sites/ --schema scripts/adapter-schema.json
-
-  markdown-link-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check site docs present
-        run: |
-          for site in knowledge/sites/*.md; do
-            [ -f "$site" ] || { echo "Missing: $site"; exit 1; }
-          done
+        run: python3 scripts/lint_adapters.py sites/ --schema scripts/adapter-schema.json
+      - name: Lint filter YAML
+        run: python3 scripts/lint_filters.py filters/ --schema scripts/filter-schema.json
+      - name: Test filter linter fixtures
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
