@@ -1,9 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Autopoies Browser Connect site adapter",
-  "description": "YAML adapter that defines a named command for a website. Loaded by ap-browser CLI at runtime from ~/.ap-browser/sites/<site>/<cmd>.yaml. This schema is intentionally permissive about optional fields — it mirrors what real adapters in production use.",
+  "description": "YAML adapter that defines a named command for a website. Loaded by ap-browser CLI at runtime from ~/.ap-browser/sites/<site>/<cmd>.yaml. This schema is intentionally permissive about optional fields \u2014 it mirrors what real adapters in production use.",
   "type": "object",
-  "required": ["site", "name", "description", "steps"],
+  "required": [
+    "site",
+    "name",
+    "description",
+    "steps"
+  ],
   "additionalProperties": false,
   "properties": {
     "site": {
@@ -25,7 +30,9 @@
     "args": {
       "type": "object",
       "description": "Declared arguments. Each key is the arg name; value is an arg definition. May be omitted if the command takes no args.",
-      "additionalProperties": { "$ref": "#/definitions/argDef" }
+      "additionalProperties": {
+        "$ref": "#/definitions/argDef"
+      }
     },
     "input": {
       "$ref": "#/definitions/inputDef",
@@ -35,16 +42,26 @@
       "$ref": "#/definitions/outputDef",
       "description": "Optional output declaration. Declares shape so downstream pipe consumers can validate."
     },
+    "timeout": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600,
+      "description": "Optional max seconds for the adapter request. Overrides the default estimate (min 30s); use for slow/fast adapters."
+    },
     "columns": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Optional. Column labels for human-readable output. Legacy field retained for backwards compatibility."
     },
     "steps": {
       "type": "array",
       "description": "Ordered list of step primitives. Each step is a single-key object mapping method name to params.",
       "minItems": 1,
-      "items": { "$ref": "#/definitions/step" }
+      "items": {
+        "$ref": "#/definitions/step"
+      }
     }
   },
   "definitions": {
@@ -52,28 +69,52 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": { "enum": ["string", "int", "bool"] },
-        "desc": { "type": "string", "description": "Human-readable description of the argument." },
-        "required": { "type": "boolean", "default": true },
-        "default": { "description": "Default value if the argument is omitted. Type depends on `type`." }
+        "type": {
+          "enum": [
+            "string",
+            "int",
+            "bool"
+          ]
+        },
+        "desc": {
+          "type": "string",
+          "description": "Human-readable description of the argument."
+        },
+        "required": {
+          "type": "boolean",
+          "default": true
+        },
+        "default": {
+          "description": "Default value if the argument is omitted. Type depends on `type`."
+        }
       }
     },
     "inputDef": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "field": { "type": "string", "description": "Arg name to fill from each NDJSON record's same-named field. If omitted, the raw line is passed as the hidden `_input` argument." },
-        "default": { "description": "Default value for the input field if the NDJSON record is missing it." }
+        "field": {
+          "type": "string",
+          "description": "Arg name to fill from each NDJSON record's same-named field. If omitted, the raw line is passed as the hidden `_input` argument."
+        },
+        "default": {
+          "description": "Default value for the input field if the NDJSON record is missing it."
+        }
       }
     },
     "outputDef": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": { "type": "string", "description": "Output shape. Common values: 'array' (each step result is a row), 'object' (single object), 'ndjson' (raw NDJSON passthrough)." },
+        "type": {
+          "type": "string",
+          "description": "Output shape. Common values: 'array' (each step result is a row), 'object' (single object), 'ndjson' (raw NDJSON passthrough)."
+        },
         "fields": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Expected field names when type is 'array' or 'object'. Helps downstream pipe consumers validate."
         }
       }
@@ -83,17 +124,53 @@
       "minProperties": 1,
       "maxProperties": 1,
       "properties": {
-        "goto":    { "description": "Navigate to URL (supports {{args.x}} templates). String URL or object with url/headers." },
-        "wait":    { "description": "Wait for a CSS selector to appear. String selector or object with selector/timeout." },
-        "eval":    { "description": "JavaScript expression to evaluate via CDP. May reference an external .js file in the same directory." },
-        "text":    { "description": "Extract text content from a CSS selector." },
-        "html":    { "description": "Extract HTML from a CSS selector." },
-        "click":   { "description": "Click an element matching a CSS selector." },
-        "fill":    { "type": "object", "description": "Fill a form field.", "properties": { "selector": {"type":"string"}, "value": {"type":"string"} }, "required": ["selector", "value"] },
-        "press":   { "type": "string", "description": "Key sequence to press (e.g. 'Enter', 'Control+a')." },
-        "scroll":  { "description": "Scroll target: 'bottom', 'top', or CSS selector." },
-        "batch":   { "description": "Sub-batch of steps (nested). Each item follows the step schema." },
-        "download":{ "description": "Trigger a download via the CLI's download routing." }
+        "goto": {
+          "description": "Navigate to URL (supports {{args.x}} templates). String URL or object with url/headers."
+        },
+        "wait": {
+          "description": "Wait for a CSS selector to appear. String selector or object with selector/timeout."
+        },
+        "eval": {
+          "description": "JavaScript expression to evaluate via CDP. May reference an external .js file in the same directory."
+        },
+        "text": {
+          "description": "Extract text content from a CSS selector."
+        },
+        "html": {
+          "description": "Extract HTML from a CSS selector."
+        },
+        "click": {
+          "description": "Click an element matching a CSS selector."
+        },
+        "fill": {
+          "type": "object",
+          "description": "Fill a form field.",
+          "properties": {
+            "selector": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "selector",
+            "value"
+          ]
+        },
+        "press": {
+          "type": "string",
+          "description": "Key sequence to press (e.g. 'Enter', 'Control+a')."
+        },
+        "scroll": {
+          "description": "Scroll target: 'bottom', 'top', or CSS selector."
+        },
+        "batch": {
+          "description": "Sub-batch of steps (nested). Each item follows the step schema."
+        },
+        "download": {
+          "description": "Trigger a download via the CLI's download routing."
+        }
       }
     }
   }

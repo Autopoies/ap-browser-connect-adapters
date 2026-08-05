@@ -5,7 +5,7 @@ This document defines the schema for `ap-browser` site adapters. Adapters are wr
 ## Top-level fields
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
+| ------- | ------ | ---------- | ------------- |
 | `site` | String | Yes | The site identifier. Must exactly match the parent folder name. |
 | `name` | String | Yes | The command name. Must exactly match the filename (without `.yaml`). |
 | `description` | String | No | A brief description of what the adapter does. |
@@ -14,6 +14,7 @@ This document defines the schema for `ap-browser` site adapters. Adapters are wr
 | `input` | Object | No | Configuration for reading piped NDJSON input. |
 | `output` | Object | No | Configuration for the output format. |
 | `columns` | List[String] | No | Preferred column order for tabular output formats. |
+| `timeout` | Integer | No | Max seconds the adapter's request may run. Defaults to an estimate from the steps (min 30s); set to override for slow (e.g. long `wait` steps) or fast adapters. Host caps at 3600s. |
 | `steps` | List[Map] | Yes | The sequence of browser automation steps to execute. |
 
 ### `args` Definition
@@ -21,7 +22,7 @@ This document defines the schema for `ap-browser` site adapters. Adapters are wr
 Each key in the `args` map is the argument name (passed via `--name`).
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
+| ------- | ------ | ---------- | ------------- |
 | `type` | String | Yes | The argument type. Allowed values: `string`, `int`, `bool`. |
 | `required` | Boolean | No | Whether the argument is required. Default is `false`. |
 | `default` | Any | No | The default value if not provided. |
@@ -45,7 +46,7 @@ Each key in the `args` map is the argument name (passed via `--name`).
 The `steps` array contains a list of single-key maps, where the key is the method name and the value is either a string (shorthand) or an object with parameters.
 
 | Method | Parameters | Description |
-|--------|------------|-------------|
+| -------- | ------------ | ------------- |
 | `goto` | `url` (String) | Navigates the browser to the specified URL. |
 | `wait` | `selector` (String)<br>`timeout_ms` (Int, default 5000) | Waits for the specified CSS selector to appear in the DOM. |
 | `eval` | `expression` (String) | Evaluates JavaScript in the page context. If the string ends with `.js` and has no newlines, it loads the script from the site folder. |
@@ -65,6 +66,7 @@ You can inject argument values into step parameters using the `{{args.NAME}}` sy
 ### Context-aware encoding
 
 The template engine automatically encodes values based on the step context:
+
 - **URL context (`goto`)**: Values are automatically percent-encoded (equivalent to `encodeURIComponent`).
 - **JavaScript context (`eval`)**: Values are automatically JSON-stringified to prevent injection and syntax errors.
 
@@ -119,5 +121,6 @@ ap-browser sites lint hackernews
 ```
 
 The linter performs two phases:
+
 1. **Static lint**: Checks schema compliance, argument types, required fields, and template variable resolution.
 2. **Live verify**: Performs a dry-run expansion of templates and executes the steps step-by-step in a real browser to verify selectors and JavaScript execution. If a selector fails, it will attempt to suggest similar valid selectors from the live page.
