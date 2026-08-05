@@ -165,6 +165,9 @@
         "scroll": {
           "description": "Scroll target: 'bottom', 'top', or CSS selector."
         },
+        "select": {
+          "description": "Pick an option from a native <select>. Object with selector and option (value or visible label)."
+        },
         "batch": {
           "description": "Sub-batch of steps (nested). Each item follows the step schema."
         },
