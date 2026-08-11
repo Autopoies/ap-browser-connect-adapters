@@ -1,0 +1,10 @@
+site: chatgpt
+name: status
+description: Check ChatGPT active generation status, web searching, Deep Research thinking, and response state
+
+output:
+  type: object
+  fields: [isGenerating, isSearching, isThinking, stopBtnFound, workedFor, currentActivity, lastResponseLength, markdownCount]
+
+steps:
+  - eval: status.js

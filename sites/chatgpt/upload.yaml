@@ -1,0 +1,24 @@
+site: chatgpt
+name: upload
+description: Attach a local file or image to ChatGPT composer
+
+args:
+  name:
+    type: string
+    default: "attachment.png"
+    desc: filename with extension
+  type:
+    type: string
+    default: "photo"
+    desc: attachment type (photo or file)
+  b64:
+    type: string
+    default: ""
+    desc: base64-encoded file content
+
+output:
+  type: object
+  fields: [ok, fileName, fileSize, type]
+
+steps:
+  - eval: upload.js

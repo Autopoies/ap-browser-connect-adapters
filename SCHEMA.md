@@ -80,7 +80,9 @@ If the adapter defines `input.field: "url"`, and the incoming NDJSON is `{"url":
 
 ## Example adapter
 
-Here is a complete, working example of an adapter (`hackernews/top.yaml`):
+Each command is two files in the site folder: a YAML definition and a sibling `.js` script. YAML owns routing/args/steps; JS owns DOM extraction. Reference the script with `eval: <file>.js` (same directory).
+
+`sites/hackernews/top.yaml`:
 
 ```yaml
 site: hackernews
@@ -95,22 +97,32 @@ args:
 steps:
   - goto: "https://news.ycombinator.com/"
   - wait: ".athing"
-  - eval: |
-      (() => {
-        const limit = {{args.limit}};
-        const rows = Array.from(document.querySelectorAll('.athing')).slice(0, limit);
-        return rows.map(row => {
-          const titleEl = row.querySelector('.titleline a');
-          const subtext = row.nextElementSibling;
-          const scoreEl = subtext ? subtext.querySelector('.score') : null;
-          return {
-            title: titleEl ? titleEl.innerText : '',
-            url: titleEl ? titleEl.href : '',
-            score: scoreEl ? parseInt(scoreEl.innerText) : 0
-          };
-        });
-      })()
+  - eval: top.js
 ```
+
+`sites/hackernews/top.js`:
+
+```js
+(() => {
+  const limit = Number("{{args.limit}}") || 20;
+  const rows = document.querySelectorAll(".athing");
+  const out = [];
+  rows.forEach((row, i) => {
+    if (i >= limit) return;
+    const titleEl = row.querySelector(".titleline a");
+    const subtext = row.nextElementSibling?.querySelector(".subtext");
+    const scoreEl = subtext?.querySelector(".score");
+    out.push({
+      title: titleEl?.textContent?.trim() || "",
+      url: titleEl?.href || "",
+      score: scoreEl ? parseInt(scoreEl.textContent, 10) || 0 : 0,
+    });
+  });
+  return out;
+})();
+```
+
+Inline `eval: |` blocks are supported by the loader, but shipped adapters keep JS in separate files.
 
 ## Linting
 

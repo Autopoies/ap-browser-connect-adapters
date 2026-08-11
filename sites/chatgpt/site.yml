@@ -1,0 +1,4 @@
+site: chatgpt
+domain: chatgpt.com
+description: OpenAI ChatGPT web interface (chat, read responses, Deep Research status)
+login_url: https://chatgpt.com/

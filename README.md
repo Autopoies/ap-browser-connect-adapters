@@ -1,6 +1,6 @@
 # ap-browser-connect-adapters
 
-Official site-adapter library for Autopoies Browser Connect. 42 sites, 200+ named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
+Official site-adapter library for Autopoies Browser Connect. 43 sites, 200+ named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
 
 ## Install
 
@@ -10,7 +10,7 @@ mkdir -p ~/.ap-browser && cp -R /tmp/abc-adapters/sites ~/.ap-browser/
 cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 ```
 
-*(Note: The `ap-browser-connect-skill` installation automates this. Manual clone is for users who want a specific subset of sites or prefer to manage updates themselves.)*
+*(Note: Installing the product skill with `npx skills add autopoies/ap-browser-connect/skill` automates this. Manual clone is for users who want a specific subset of sites or prefer to manage updates themselves.)*
 
 ## Available sites
 
@@ -23,6 +23,7 @@ cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 | `bilibili` | Bilibili — Chinese video sharing platform |
 | `bloomberg` | Bloomberg section headlines |
 | `chaoxing` | 超星学习通 lists; requires login |
+| `chatgpt` | ChatGPT web — send, read, status, model/mode/effort, upload; requires login |
 | `crates-io` | crates.io — Rust package registry |
 | `devto` | DEV Community — platform for developers to write and share articles |
 | `douban` | 豆瓣电影 — 中文影评社区 |
@@ -61,9 +62,9 @@ cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 
 ## Anatomy of an adapter
 
-Adapters define how `ap-browser` interacts with a site. They consist of a YAML definition and optional JavaScript for DOM extraction.
+Each command is a YAML file plus a sibling `.js` file in the same site folder. YAML defines args and steps; JS does DOM extraction. Reference the script with `eval: <file>.js`.
 
-Example: `sites/hackernews/top.yaml`
+`sites/hackernews/top.yaml`:
 ```yaml
 site: hackernews
 name: top
@@ -89,6 +90,16 @@ steps:
   - eval: top.js
 ```
 
+`sites/hackernews/top.js`:
+```js
+(() => {
+  const limit = Number("{{args.limit}}") || 20;
+  const rows = document.querySelectorAll(".athing");
+  // ... extract rank, title, url, points, comments ...
+  return out;
+})();
+```
+
 See [SCHEMA.md](SCHEMA.md) for the full reference.
 
 ## Updating
@@ -101,7 +112,7 @@ Otherwise, re-run the install copy commands to overwrite your local adapters wit
 
 ## Contributing
 
-To create a new site adapter, follow the [Adapter Authoring Guide](https://github.com/autopoies/ap-browser-connect-skill/blob/main/references/create-site.md).
+To create a new site adapter, follow the [Adapter Authoring Guide](https://github.com/autopoies/ap-browser-connect/blob/main/skill/references/create-site.md).
 
 Before submitting a PR, ensure your adapters pass the CI linter:
 ```bash

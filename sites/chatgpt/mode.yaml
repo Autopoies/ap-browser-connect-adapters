@@ -1,0 +1,19 @@
+site: chatgpt
+name: mode
+description: Select or toggle ChatGPT mode by index or mode name
+
+args:
+  index:
+    type: int
+    desc: 0-based plus menu item index
+  mode:
+    type: string
+    default: ""
+    desc: mode name or substring
+
+output:
+  type: object
+  fields: [modeIndex, modeName, selected, text]
+
+steps:
+  - eval: mode.js

@@ -1,0 +1,25 @@
+site: chatgpt
+name: send
+description: Type and submit a prompt message to ChatGPT, with optional mode and effort settings
+
+args:
+  prompt:
+    type: string
+    required: true
+    desc: prompt text to send
+  mode:
+    type: string
+    default: ""
+    desc: optional mode (deep-research, web-search, image-gen)
+  effort:
+    type: string
+    default: ""
+    desc: optional thinking effort (high, medium, low)
+
+output:
+  type: object
+  fields: [sent, promptLength, mode, effort]
+
+steps:
+  - wait: "#prompt-textarea, textarea, div[contenteditable='true']"
+  - eval: send.js

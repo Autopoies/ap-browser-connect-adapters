@@ -1,0 +1,24 @@
+site: chatgpt
+name: read
+description: Extract assistant or user responses from ChatGPT conversation, with optional wait for generation completion and status feedback
+
+args:
+  index:
+    type: int
+    default: -1
+    desc: turn index (-1 for latest)
+  role:
+    type: string
+    default: "assistant"
+    desc: message role filter (assistant, user, or all)
+  wait:
+    type: int
+    default: 0
+    desc: max wait time in seconds for generation/thinking to complete before reading
+
+output:
+  type: object
+  fields: [turnIndex, role, length, content, status]
+
+steps:
+  - eval: read.js

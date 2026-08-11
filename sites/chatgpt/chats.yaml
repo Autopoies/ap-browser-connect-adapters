@@ -1,0 +1,16 @@
+site: chatgpt
+name: chats
+description: List recent chat conversations in the ChatGPT sidebar
+
+args:
+  limit:
+    type: int
+    default: 15
+    desc: max chat threads to return
+
+output:
+  type: array
+  fields: [title, url]
+
+steps:
+  - eval: chats.js

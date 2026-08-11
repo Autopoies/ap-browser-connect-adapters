@@ -1,15 +1,43 @@
 (() => {
-  const clean = s => (s || '').replace(/\s+/g, ' ').trim();
-  const limit = Number('{{args.limit}}') || 20;
-  const lines = (document.body.innerText || '').split('\n').map(clean).filter(Boolean);
-  const out = [];
-  const timeRe = /^(\d+\s*(分钟|小时|天|周)|\d+\s*(m|h|d|w)|Yesterday|Today)/i;
-  for (let i = 0; i < lines.length && out.length < limit; i++) {
-    if (lines[i] === '未读' || lines[i] === 'Unread') {
-      const text = lines[i + 1] || '';
-      const time = timeRe.test(lines[i + 2] || '') ? lines[i + 2] : '';
-      if (text && text !== '通知' && text !== 'Notifications') out.push({ text, url: '', time });
-    }
-  }
-  return out;
-})()
+	const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
+	const limit = Number("{{args.limit}}") || 20;
+	const items = [];
+	const seen = new Set();
+
+	const nodes = document.querySelectorAll(
+		'a[href*="notif"], [role="listitem"] a, [role="article"]',
+	);
+	nodes.forEach((node) => {
+		if (items.length >= limit) return;
+		const url = node.getAttribute("href")
+			? node.href
+			: node.querySelector("a")?.href || "";
+		const text = clean(node.innerText || node.textContent);
+		if (!text || text.length < 5 || seen.has(url || text)) return;
+		seen.add(url || text);
+
+		const time = clean(
+			node.querySelector("time")?.textContent ||
+				node.querySelector("abbr")?.textContent ||
+				"",
+		);
+		items.push({ text, url, time });
+	});
+
+	if (items.length === 0) {
+		const lines = (document.body.innerText || "")
+			.split("\n")
+			.map(clean)
+			.filter(Boolean);
+		for (let i = 0; i < lines.length && items.length < limit; i++) {
+			const line = lines[i];
+			if (line.length > 5 && i + 1 < lines.length) {
+				const isTime = /^[\d\s\w:•·-]{1,15}$/.test(lines[i + 1]);
+				if (isTime) {
+					items.push({ text: line, url: "", time: lines[i + 1] });
+				}
+			}
+		}
+	}
+	return items;
+})();

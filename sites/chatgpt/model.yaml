@@ -1,0 +1,19 @@
+site: chatgpt
+name: model
+description: Select or switch active ChatGPT model by index or name
+
+args:
+  index:
+    type: int
+    desc: 0-based menu index of the target model
+  name:
+    type: string
+    default: ""
+    desc: target model name or substring
+
+output:
+  type: object
+  fields: [modelIndex, modelName, selected, text]
+
+steps:
+  - eval: model.js

@@ -1,0 +1,19 @@
+site: chatgpt
+name: effort
+description: Set ChatGPT thinking effort level by index or level name
+
+args:
+  index:
+    type: int
+    desc: 0-based effort option index
+  level:
+    type: string
+    default: ""
+    desc: effort level name or substring
+
+output:
+  type: object
+  fields: [effortIndex, effortLevel, selected, text]
+
+steps:
+  - eval: effort.js
