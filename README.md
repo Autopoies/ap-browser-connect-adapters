@@ -1,6 +1,6 @@
 # ap-browser-connect-adapters
 
-Official site-adapter library for Autopoies Browser Connect. 43 sites, 200+ named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
+Official site-adapter library for Autopoies Browser Connect. 43 sites, 159 named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
 
 ## Install
 
