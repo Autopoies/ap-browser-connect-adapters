@@ -1,0 +1,22 @@
+site: gmail
+name: starred
+description: List starred emails in Gmail
+
+args:
+  page:
+    type: int
+    required: false
+    default: 1
+    desc: Page number (1-based)
+  limit:
+    type: int
+    required: false
+    default: 25
+    desc: Maximum number of starred emails to return
+
+output:
+  type: object
+  fields: [account, folder, page, total, emails]
+
+steps:
+  - eval: starred.js

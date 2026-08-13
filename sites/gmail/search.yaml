@@ -1,0 +1,26 @@
+site: gmail
+name: search
+description: Search emails in Gmail using query terms or operators
+
+args:
+  query:
+    type: string
+    required: true
+    desc: Search query or filter keywords
+  page:
+    type: int
+    required: false
+    default: 1
+    desc: Page number (1-based)
+  limit:
+    type: int
+    required: false
+    default: 25
+    desc: Maximum number of search results to return
+
+output:
+  type: object
+  fields: [account, query, page, total, emails]
+
+steps:
+  - eval: search.js

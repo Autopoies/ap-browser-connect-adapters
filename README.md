@@ -1,6 +1,6 @@
 # ap-browser-connect-adapters
 
-Official site-adapter library for Autopoies Browser Connect. 43 sites, 159 named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
+Official site-adapter library for Autopoies Browser Connect. 44 sites, 172 named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
 
 ## Install
 
@@ -15,7 +15,7 @@ cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 ## Available sites
 
 | Site | Description |
-|---|---|
+| --- | --- |
 | `apple-podcasts` | Apple Podcasts search, charts, and episodes |
 | `arxiv` | arXiv — open-access archive for scholarly articles in physics, math, CS, etc. |
 | `barchart` | Barchart market quotes, options chains, and unusual options activity |
@@ -30,6 +30,7 @@ cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 | `facebook` | Facebook — social networking platform |
 | `gist` | GitHub Gists — code snippet hosting |
 | `github` | GitHub — code hosting platform |
+| `gmail` | Gmail web — inbox, drafts, spam, trash, labels, search, read, send, reply; requires login |
 | `google` | Google web and news search |
 | `hackernews` | Hacker News — social news for tech |
 | `hf` | Hugging Face — model / dataset / space hub |
@@ -65,6 +66,7 @@ cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 Each command is a YAML file plus a sibling `.js` file in the same site folder. YAML defines args and steps; JS does DOM extraction. Reference the script with `eval: <file>.js`.
 
 `sites/hackernews/top.yaml`:
+
 ```yaml
 site: hackernews
 name: top
@@ -91,6 +93,7 @@ steps:
 ```
 
 `sites/hackernews/top.js`:
+
 ```js
 (() => {
   const limit = Number("{{args.limit}}") || 20;
@@ -105,9 +108,11 @@ See [SCHEMA.md](SCHEMA.md) for the full reference.
 ## Updating
 
 If you cloned the repository directly into `~/.ap-browser/sites`:
+
 ```bash
 cd ~/.ap-browser/sites && git pull
 ```
+
 Otherwise, re-run the install copy commands to overwrite your local adapters with the latest versions.
 
 ## Contributing
@@ -115,6 +120,7 @@ Otherwise, re-run the install copy commands to overwrite your local adapters wit
 To create a new site adapter, follow the [Adapter Authoring Guide](https://github.com/autopoies/ap-browser-connect/blob/main/skill/references/create-site.md).
 
 Before submitting a PR, ensure your adapters pass the CI linter:
+
 ```bash
 python scripts/lint_adapters.py sites/
 ```

@@ -1,0 +1,23 @@
+---
+site: gmail
+name: read
+description: Read email thread details and message bodies
+
+args:
+  id:
+    type: string
+    required: false
+    default: ""
+    desc: Thread ID or legacy ID to open. If empty, reads current email.
+  expand:
+    type: bool
+    required: false
+    default: true
+    desc: Whether to expand all collapsed messages in the thread
+
+output:
+  type: object
+  fields: [account, threadId, subject, messageCount, labels, messages]
+
+steps:
+  - eval: read.js

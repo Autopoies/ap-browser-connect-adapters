@@ -1,0 +1,27 @@
+site: gmail
+name: inbox
+description: List emails from Gmail inbox with limit and pagination
+
+args:
+  page:
+    type: int
+    required: false
+    default: 1
+    desc: Page number (1-based)
+  limit:
+    type: int
+    required: false
+    default: 25
+    desc: Maximum number of emails to return
+  unread_only:
+    type: bool
+    required: false
+    default: false
+    desc: If true, only return unread emails
+
+output:
+  type: object
+  fields: [account, folder, page, total, emails]
+
+steps:
+  - eval: inbox.js

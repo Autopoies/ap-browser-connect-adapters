@@ -1,0 +1,42 @@
+---
+site: gmail
+name: reply
+description: Reply or Reply All to an email thread with optional attachment
+
+args:
+  body:
+    type: string
+    required: true
+    desc: Reply message body
+  id:
+    type: string
+    required: false
+    default: ""
+    desc: Optional thread ID to open before replying
+  reply_all:
+    type: bool
+    required: false
+    default: false
+    desc: Whether to reply to all recipients
+  attachment_name:
+    type: string
+    required: false
+    default: ""
+    desc: Optional attachment filename
+  attachment_content:
+    type: string
+    required: false
+    default: ""
+    desc: Optional attachment text or base64 data
+  attachment_type:
+    type: string
+    required: false
+    default: "text/plain"
+    desc: MIME type for attachment
+
+output:
+  type: object
+  fields: [account, sent, threadId, subject, replyAll, hasAttachment, status]
+
+steps:
+  - eval: reply.js

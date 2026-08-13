@@ -1,0 +1,10 @@
+site: gmail
+name: labels
+description: List all folders, categories, and custom labels in Gmail
+
+output:
+  type: object
+  fields: [account, total, labels]
+
+steps:
+  - eval: labels.js

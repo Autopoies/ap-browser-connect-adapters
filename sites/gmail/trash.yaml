@@ -1,0 +1,22 @@
+site: gmail
+name: trash
+description: List deleted emails from Gmail trash
+
+args:
+  page:
+    type: int
+    required: false
+    default: 1
+    desc: Page number (1-based)
+  limit:
+    type: int
+    required: false
+    default: 25
+    desc: Maximum number of trash emails to return
+
+output:
+  type: object
+  fields: [account, folder, page, total, emails]
+
+steps:
+  - eval: trash.js

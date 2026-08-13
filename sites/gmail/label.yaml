@@ -1,0 +1,26 @@
+site: gmail
+name: label
+description: List emails under a specific label or category
+
+args:
+  name:
+    type: string
+    required: true
+    desc: Label or category name (e.g. Important, Social, or custom)
+  page:
+    type: int
+    required: false
+    default: 1
+    desc: Page number (1-based)
+  limit:
+    type: int
+    required: false
+    default: 25
+    desc: Maximum number of emails to return
+
+output:
+  type: object
+  fields: [account, label, page, total, emails]
+
+steps:
+  - eval: label.js

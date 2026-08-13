@@ -1,0 +1,52 @@
+---
+site: gmail
+name: send
+description: Compose and send an email with optional CC, BCC, and attachment
+
+args:
+  to:
+    type: string
+    required: true
+    desc: Recipient email address(es), comma-separated
+  subject:
+    type: string
+    required: false
+    default: ""
+    desc: Email subject line
+  body:
+    type: string
+    required: false
+    default: ""
+    desc: Email body content
+  cc:
+    type: string
+    required: false
+    default: ""
+    desc: Optional CC recipient(s), comma-separated
+  bcc:
+    type: string
+    required: false
+    default: ""
+    desc: Optional BCC recipient(s), comma-separated
+  attachment_name:
+    type: string
+    required: false
+    default: ""
+    desc: Optional attachment filename
+  attachment_content:
+    type: string
+    required: false
+    default: ""
+    desc: Optional attachment text or base64 data
+  attachment_type:
+    type: string
+    required: false
+    default: "text/plain"
+    desc: MIME type for attachment (e.g. text/plain, application/pdf)
+
+output:
+  type: object
+  fields: [account, sent, to, subject, hasAttachment, status]
+
+steps:
+  - eval: send.js

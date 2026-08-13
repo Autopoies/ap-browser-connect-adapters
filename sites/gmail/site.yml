@@ -1,0 +1,4 @@
+site: gmail
+domain: mail.google.com
+description: Gmail web interface (inbox, drafts, spam, trash, labels, search, read, send, reply)
+login_url: https://mail.google.com/

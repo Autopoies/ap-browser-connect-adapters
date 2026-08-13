@@ -1,0 +1,10 @@
+site: gmail
+name: account
+description: Get current active Gmail account email and mailbox summary
+
+output:
+  type: object
+  fields: [account, url, unreadInbox, title]
+
+steps:
+  - eval: account.js
