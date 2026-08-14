@@ -1,6 +1,25 @@
 site: chatgpt
 name: send
-description: Type and submit a prompt message to ChatGPT, with optional mode and effort settings
+description: >-
+  Type and submit a prompt to ChatGPT with optional mode and effort
+long_running: true
+
+wait_strategy:
+  eval: status.js
+  when:
+    isGenerating: false
+  initial_delay_ms: 500
+  timeout_ms: 300000
+  interval_ms: 1000
+
+hints:
+  long_running: >-
+    ChatGPT generation in progress. Pass --wait to wait until completion,
+    or run 'ap-browser chatgpt wait'.
+  in_flight: >-
+    ChatGPT is still thinking or generating in background. Run 'ap-browser
+    chatgpt wait' to continue waiting, or 'ap-browser chatgpt read' to
+    inspect output.
 
 args:
   prompt:

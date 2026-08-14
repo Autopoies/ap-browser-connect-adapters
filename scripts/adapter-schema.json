@@ -55,6 +55,32 @@
       },
       "description": "Optional. Column labels for human-readable output. Legacy field retained for backwards compatibility."
     },
+    "long_running": {
+      "type": "boolean",
+      "description": "Optional. Mark as a long-running operation so CLI and agents know wait-until-done is recommended."
+    },
+    "wait_strategy": {
+      "type": "object",
+      "description": "Optional default wait-until-done strategy for this command when --wait is requested.",
+      "properties": {
+        "eval": { "type": "string" },
+        "until_eval": { "type": "string" },
+        "when": { "type": "object" },
+        "gone": { "type": "string" },
+        "timeout_ms": { "type": "integer", "minimum": 1, "maximum": 3600000 },
+        "interval_ms": { "type": "integer", "minimum": 50, "maximum": 60000 },
+        "initial_delay_ms": { "type": "integer", "minimum": 0, "maximum": 60000 },
+        "hints": { "type": "object" }
+      }
+    },
+    "hints": {
+      "type": "object",
+      "description": "Optional custom agent guidance hints for different lifecycle states.",
+      "properties": {
+        "in_flight": { "type": "string" },
+        "long_running": { "type": "string" }
+      }
+    },
     "steps": {
       "type": "array",
       "description": "Ordered list of step primitives. Each step is a single-key object mapping method name to params.",
@@ -128,7 +154,7 @@
           "description": "Navigate to URL (supports {{args.x}} templates). String URL or object with url/headers."
         },
         "wait": {
-          "description": "Wait for a CSS selector to appear. String selector or object with selector/timeout."
+          "description": "Wait for a CSS selector, element removal (gone), or JavaScript condition (eval/until_eval) to settle. String selector or object with selector/eval/until_eval/when/gone/timeout_ms/interval_ms."
         },
         "eval": {
           "description": "JavaScript expression to evaluate via CDP. May reference an external .js file in the same directory."

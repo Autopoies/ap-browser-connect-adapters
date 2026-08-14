@@ -14,6 +14,9 @@ This document defines the schema for `ap-browser` site adapters. Adapters are wr
 | `input` | Object | No | Configuration for reading piped NDJSON input. |
 | `output` | Object | No | Configuration for the output format. |
 | `columns` | List[String] | No | Preferred column order for tabular output formats. |
+| `long_running` | Boolean | No | Mark as a long-running operation so CLI and agents know wait-until-done is recommended. |
+| `wait_strategy` | Object | No | Default wait-until-done strategy when `--wait` is requested (`eval`, `when`, `gone`, `initial_delay_ms`, `timeout_ms`, `interval_ms`, `hints`). |
+| `hints` | Map | No | Custom agent guidance hints for lifecycle states (`in_flight`, `long_running`). |
 | `timeout` | Integer | No | Max seconds the adapter's request may run. Defaults to an estimate from the steps (min 30s); set to override for slow (e.g. long `wait` steps) or fast adapters. Host caps at 3600s. |
 | `steps` | List[Map] | Yes | The sequence of browser automation steps to execute. |
 
@@ -48,11 +51,11 @@ The `steps` array contains a list of single-key maps, where the key is the metho
 | Method | Parameters | Description |
 | -------- | ------------ | ------------- |
 | `goto` | `url` (String) | Navigates the browser to the specified URL. |
-| `wait` | `selector` (String)<br>`timeout_ms` (Int, default 5000) | Waits for the specified CSS selector to appear in the DOM. |
+| `wait` | `selector` (String), `eval` / `until_eval` (String), `when` (Map), `gone` (String), `initial_delay_ms` (Int, default 500), `timeout_ms` (Int, default 5000), `interval_ms` (Int, default 1000) | Waits for a selector, element disappearance (`gone`), or JavaScript condition (`eval`/`until_eval` returning truthy or matching `when`) to settle. |
 | `eval` | `expression` (String) | Evaluates JavaScript in the page context. If the string ends with `.js` and has no newlines, it loads the script from the site folder. |
 | `text` | `selector` (String, default `body`) | Extracts the text content of the specified selector. |
 | `click` | `selector` (String) | Clicks the element matching the specified selector. |
-| `fill` | `selector` (String)<br>`value` (String) | Fills the input element matching the selector with the specified value. |
+| `fill` | `selector` (String), `value` (String) | Fills the input element matching the selector with the specified value. |
 | `press` | `keys` (String) | Presses the specified keyboard keys (e.g., `Enter`). |
 | `scroll` | `count` (Int, default 1)<br>`pause_ms` (Int, default 800)<br>`selector` (String, optional) | Scrolls the page or a specific element down `count` times, pausing for `pause_ms` between scrolls. |
 
