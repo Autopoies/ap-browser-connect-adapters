@@ -1,0 +1,7 @@
+# Compatibility handshake, read by `ap-browser` (>= 0.1.4).
+# - `version`         library revision, bump when adapters change shape
+# - `min_cli_version` lowest ap-browser CLI these adapters work
+#                     with; newer CLI is always fine, older gets a
+#                     startup warning
+version: 1
+min_cli_version: "0.1.3"
