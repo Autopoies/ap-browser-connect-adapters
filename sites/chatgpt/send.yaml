@@ -39,8 +39,22 @@ args:
 
 output:
   type: object
-  fields: [sent, promptLength, mode, effort]
+  fields: [sent, submitted]
 
 steps:
-  - wait: "#prompt-textarea, textarea, div[contenteditable='true']"
-  - eval: send.js
+  - wait:
+      selector: "#prompt-textarea, textarea, div[contenteditable='true']"
+      timeout_ms: 10000
+  - eval: send-modes.js
+  # Typing and submission go through the REAL input pipeline (CDP):
+  # page-JS execCommand types text the DOM can see but ProseMirror/React
+  # state ignores, and synthetic KeyboardEvent/button.click() never trigger
+  # the submit handler — the prompt sat in the composer forever.
+  - fill:
+      selector: "#prompt-textarea, textarea, div[contenteditable='true']"
+      value: "{{args.prompt}}"
+  # No bare `press: Enter` here: fired back-to-back with fill it races
+  # ProseMirror's input flush and eats the text without submitting.
+  # send-verify.js drives submission (button click, retried) and only
+  # accepts on observed generation/response.
+  - eval: send-verify.js

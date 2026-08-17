@@ -1,5 +1,7 @@
 (() => {
-	const promptText = `{{args.prompt}}`;
+	// Mode/effort pre-selection only. Typing and submission are CDP batch
+	// steps (fill + press Enter) — page-JS execCommand/KeyboardEvent do not
+	// reach ChatGPT's React/ProseMirror state on the fresh-chat composer.
 	const modeOpt = "{{args.mode}}".toLowerCase();
 	const effortOpt = "{{args.effort}}".toLowerCase();
 
@@ -84,50 +86,8 @@
 		}
 	}
 
-	// 3. Focus and type prompt into input
-	const textarea =
-		document.querySelector("#prompt-textarea") ||
-		document.querySelector("textarea") ||
-		document.querySelector('div[contenteditable="true"]');
-	if (!textarea) {
-		throw Object.assign(new Error("prompt textarea not found"), {
-			code: "SELECTOR_NO_MATCH",
-		});
-	}
-
-	textarea.focus();
-	if (
-		textarea.getAttribute("contenteditable") === "true" ||
-		textarea.tagName === "DIV"
-	) {
-		document.execCommand("selectAll", false, null);
-		document.execCommand("insertText", false, promptText);
-	} else {
-		textarea.value = promptText;
-		textarea.dispatchEvent(new Event("input", { bubbles: true }));
-	}
-
-	// 4. Trigger submit via Enter key and fallback send button
-	const enterEvent = new KeyboardEvent("keydown", {
-		key: "Enter",
-		code: "Enter",
-		keyCode: 13,
-		which: 13,
-		bubbles: true,
-		cancelable: true,
-	});
-	textarea.dispatchEvent(enterEvent);
-
-	const sendBtn = document.querySelector(
-		'button[data-testid="send-button"], #composer-submit-button, button[aria-label*="Send"], button[aria-label*="发送"], button.composer-submit-btn',
-	);
-	if (sendBtn && !sendBtn.disabled) {
-		sendBtn.click();
-	}
-
 	return {
-		sent: true,
-		promptLength: promptText.length,
+		prepared: true,
 		mode: modeOpt || "default",
 		effort: effortOpt || "default",
 	};
