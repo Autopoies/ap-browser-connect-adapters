@@ -8,7 +8,9 @@ wait_strategy:
   eval: status.js
   when:
     isGenerating: false
-  initial_delay_ms: 500
+  # See wait.yaml: blocks the idle-before-first-token false positive.
+  require_started: true
+  initial_delay_ms: 300
   timeout_ms: 300000
   interval_ms: 1000
 

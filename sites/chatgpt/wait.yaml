@@ -17,6 +17,10 @@ steps:
       eval: status.js
       when:
         isGenerating: false
-      initial_delay_ms: 500
+      # False-positive guard: right after send, status is briefly idle with no
+      # response yet — without this the wait returns "completed" in the dead
+      # window before generation starts.
+      require_started: true
+      initial_delay_ms: 300
       timeout_ms: 300000
       interval_ms: 1000
