@@ -1,0 +1,38 @@
+site: google-scholar
+name: search
+description: Search Google Scholar for academic papers and citations
+
+args:
+  query:
+    type: string
+    required: true
+    desc: search keywords or paper title
+  limit:
+    type: int
+    default: 10
+    desc: max number of results
+  page:
+    type: int
+    default: 1
+    desc: result page, 1-10 (10 results per page)
+
+output:
+  type: array
+  fields: [title, url, authors, snippet, cited_by_count, cited_by_url, pdf_url]
+
+steps:
+  - goto: "https://scholar.google.com/"
+  - wait: "input[name=q]"
+  - fill:
+      selector: "input[name=q]"
+      value: "{{args.query}}"
+  - press: "Escape"
+  - click: "#gs_hdr_tsb"
+  - wait: ".gs_r"
+  - eval: verify.js
+  - eval: paginate.js
+  - wait:
+      gone: "body[data-apb-nav]"
+      timeout_ms: 15000
+  - wait: ".gs_r"
+  - eval: search.js

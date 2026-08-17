@@ -1,0 +1,21 @@
+site: google-scholar
+name: author
+description: Fetch a Google Scholar author profile by user id
+
+args:
+  user:
+    type: string
+    required: true
+    desc: scholar user id from the profile URL (?user=<id>)
+
+timeout: 60
+
+output:
+  type: object
+  fields: [user, name, affiliation, interests, stats, publications]
+
+steps:
+  - goto: >-
+      https://scholar.google.com/citations?hl=en&user={{args.user}}
+  - wait: "#gsc_prf_in"
+  - eval: author.js

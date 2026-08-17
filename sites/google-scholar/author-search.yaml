@@ -1,0 +1,25 @@
+site: google-scholar
+name: author-search
+description: Search Google Scholar author profiles by name
+
+args:
+  query:
+    type: string
+    required: true
+    desc: author name keyword
+  limit:
+    type: int
+    default: 10
+    desc: max profiles returned
+
+timeout: 60
+
+output:
+  type: array
+  fields: [user_id, name, affiliation, email_domain, url]
+
+steps:
+  - goto: >-
+      https://scholar.google.com/citations?view_op=search_authors&hl=en&mauthors={{args.query}}
+  - wait: ".gsc_1usr, #gsc_authors_bottom"
+  - eval: author-search.js

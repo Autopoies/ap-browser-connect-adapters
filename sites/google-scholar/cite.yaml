@@ -1,0 +1,38 @@
+site: google-scholar
+name: cite
+description: >-
+    Search a paper by title and export its citations — 3 formatted strings,
+    BibTeX text, and EndNote/RefMan/RefWorks links
+
+args:
+    query:
+        type: string
+        required: true
+        desc: paper title (best match is cited)
+
+timeout: 90
+
+output:
+    type: object
+    fields: [query, formats, bibtex, bibtex_url, endnote_url, refman_url]
+
+steps:
+    - goto: "https://scholar.google.com/"
+    - wait: "input[name=q]"
+    - fill:
+          selector: "input[name=q]"
+          value: "{{args.query}}"
+    - press: "Escape"
+    - click: "#gs_hdr_tsb"
+    - wait: ".gs_r"
+    - eval: verify.js
+    - eval: cite-open.js
+    - wait:
+          gone: "body[data-apb-cite]"
+          timeout_ms: 20000
+    - wait: ".gs_citr"
+    - eval: cite-extract.js
+    - wait:
+          gone: "body[data-apb-cite]"
+          timeout_ms: 20000
+    - eval: cite-final.js
