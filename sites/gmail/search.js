@@ -56,10 +56,52 @@
 		}
 	}
 
-	for (let i = 0; i < 30; i++) {
-		if (document.querySelector('tr.zA, div[role="main"]')) break;
-		await new Promise((r) => setTimeout(r, 100));
-	}
+	// Wait until the search view actually renders. NOTE: never sleep-poll here —
+	// Chrome throttles setTimeout in hidden tabs (adapter tabs open with active:false),
+	// so a 30×100ms poll becomes 30s+. MutationObserver fires unthrottled on DOM
+	// changes; a setTimeout only serves as a deadline backstop. Also: Gmail rewrites
+	// %20 → + in the hash, so compare both forms.
+	const hashOkNow = () => {
+		const norm = (h) => h.replace(/%20/g, "+");
+		return (
+			norm(window.location.hash).startsWith(norm(targetPrefix)) ||
+			window.location.hash.startsWith(targetPrefix)
+		);
+	};
+	const viewReady = () => {
+		const hasRows = document.querySelectorAll("tr.zA").length > 0;
+		const empty = document.querySelector("td.TC, .TC");
+		return hashOkNow() && (hasRows || empty);
+	};
+	await new Promise((resolve) => {
+		if (viewReady()) return resolve();
+		// On a freshly-opened tab the boot-time hash assignment can be wiped by
+		// Gmail's SPA bootstrap (hash resets to #inbox). Re-apply it once the shell
+		// is live — MutationObserver fires unthrottled, so this is cheap.
+		let reassigns = 0;
+		const shellReady = () =>
+			!!document.querySelector(
+				'div[role="navigation"], #gs_lc50, a[aria-label*="Gmail"]',
+			);
+		const mo = new MutationObserver(() => {
+			if (viewReady()) {
+				mo.disconnect();
+				resolve();
+			} else if (
+				reassigns < 3 &&
+				!hashOkNow() &&
+				shellReady()
+			) {
+				reassigns++;
+				window.location.hash = expectedHash;
+			}
+		});
+		mo.observe(document.body, { childList: true, subtree: true });
+		setTimeout(() => {
+			mo.disconnect();
+			resolve();
+		}, 4000); // deadline backstop only
+	});
 
 	const allRows = Array.from(document.querySelectorAll("tr.zA"));
 	const startIndex =
