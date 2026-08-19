@@ -1,3 +1,4 @@
+---
 site: chatgpt
 name: send
 description: >-
@@ -28,6 +29,10 @@ args:
     type: string
     required: true
     desc: prompt text to send
+  model:
+    type: string
+    default: ""
+    desc: optional model name or substring (e.g. 'gpt-5.6', 'o3', 'gpt-4o')
   mode:
     type: string
     default: ""
@@ -35,7 +40,7 @@ args:
   effort:
     type: string
     default: ""
-    desc: optional thinking effort (high, medium, low)
+    desc: optional thinking effort (high, medium, low, pro, instant)
 
 output:
   type: object

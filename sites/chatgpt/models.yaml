@@ -1,10 +1,11 @@
 site: chatgpt
 name: models
-description: List available ChatGPT models, thinking efforts, and modes with their 0-based indices
+description: >-
+  List available ChatGPT models, thinking efforts, and modes with indices
 
 output:
   type: object
-  fields: [currentModel, currentEffort, models, efforts, modes]
+  fields: [currentModel, currentEffort, models, efforts, presets, modes]
 
 steps:
   - eval: models.js
