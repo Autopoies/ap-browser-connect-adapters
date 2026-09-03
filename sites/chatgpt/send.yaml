@@ -4,6 +4,7 @@ name: send
 description: >-
   Type and submit a prompt to ChatGPT with optional mode and effort
 long_running: true
+keep_tab: true
 
 wait_strategy:
   eval: status.js

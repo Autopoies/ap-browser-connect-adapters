@@ -15,6 +15,7 @@ This document defines the schema for `ap-browser` site adapters. Adapters are wr
 | `output` | Object | No | Configuration for the output format. |
 | `columns` | List[String] | No | Preferred column order for tabular output formats. |
 | `long_running` | Boolean | No | Mark as a long-running operation so CLI and agents know wait-until-done is recommended. |
+| `keep_tab` | Boolean | No | Keep auto-created tab open after batch completes (for stateful/multi-step sessions). Defaults to `false` (ephemeral, auto-closed on exit). |
 | `wait_strategy` | Object | No | Default wait-until-done strategy when `--wait` is requested (`eval`, `when`, `gone`, `initial_delay_ms`, `timeout_ms`, `interval_ms`, `hints`). |
 | `hints` | Map | No | Custom agent guidance hints for lifecycle states (`in_flight`, `long_running`). |
 | `timeout` | Integer | No | Max seconds the adapter's request may run. Defaults to an estimate from the steps (min 30s); set to override for slow (e.g. long `wait` steps) or fast adapters. Host caps at 3600s. |

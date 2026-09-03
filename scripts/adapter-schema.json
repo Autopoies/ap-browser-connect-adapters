@@ -59,6 +59,10 @@
       "type": "boolean",
       "description": "Optional. Mark as a long-running operation so CLI and agents know wait-until-done is recommended."
     },
+    "keep_tab": {
+      "type": "boolean",
+      "description": "Optional. Keep auto-created tab open after batch completes (for stateful/multi-step sessions). Defaults to false (ephemeral, auto-closed)."
+    },
     "wait_strategy": {
       "type": "object",
       "description": "Optional default wait-until-done strategy for this command when --wait is requested.",
