@@ -1,0 +1,16 @@
+site: muse
+name: chats
+description: List Muse chat threads (main chat, side chats, channels) in the sidebar
+
+args:
+  limit:
+    type: int
+    default: 15
+    desc: max threads to return
+
+output:
+  type: array
+  fields: [index, title, detail, active]
+
+steps:
+  - eval: chats.js

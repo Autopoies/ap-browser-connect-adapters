@@ -1,0 +1,26 @@
+---
+site: gemini
+name: wait
+description: Wait until Gemini finishes generating the current reply
+
+output:
+  type: object
+  fields:
+    - completed
+    - matched
+    - reason
+    - waited_ms
+    - current_status
+
+steps:
+  - wait:
+      eval: status.js
+      when:
+        isGenerating: false
+      # False-positive guard: right after submit the page can briefly look idle
+      # before the pending user turn is rendered. require_started makes the
+      # wait latch only after generation was observed.
+      require_started: true
+      initial_delay_ms: 300
+      timeout_ms: 300000
+      interval_ms: 1000

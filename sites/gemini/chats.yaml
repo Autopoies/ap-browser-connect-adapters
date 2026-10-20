@@ -1,0 +1,16 @@
+site: gemini
+name: chats
+description: List recent Gemini conversations in the sidebar
+
+args:
+  limit:
+    type: int
+    default: 15
+    desc: max conversations to return
+
+output:
+  type: array
+  fields: [title, url]
+
+steps:
+  - eval: chats.js

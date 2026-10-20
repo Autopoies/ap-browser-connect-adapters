@@ -1,0 +1,26 @@
+site: muse
+name: open
+description: Open a sidebar thread by index or name (main chat, side chat, or a read-only channel such as WhatsApp). Use 'muse chats' for indexes.
+
+args:
+  index:
+    type: int
+    desc: 0-based index from 'muse chats' (takes precedence over name)
+  name:
+    type: string
+    default: ""
+    desc: thread title or substring (e.g. 'WhatsApp', 'Ivey'); exact match wins, otherwise the shortest title containing it
+
+output:
+  type: object
+  fields: [opened, thread, index, path, readOnly, messageCount]
+
+steps:
+  - eval: open-click.js
+  - wait:
+      eval: open-state.js
+      when:
+        opened: true
+      timeout_ms: 8000
+      interval_ms: 200
+  - eval: open-verify.js

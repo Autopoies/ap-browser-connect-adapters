@@ -1,0 +1,49 @@
+site: gemini
+name: upload
+description: Attach a local file to the current Gemini composer (via the upload & tools menu). Does not send.
+
+args:
+  name:
+    type: string
+    default: "attachment.txt"
+    desc: filename with extension (.txt, .pdf, .md, .csv, .png, .jpg, ...)
+  b64:
+    type: string
+    default: ""
+    desc: base64-encoded file content (empty = small text placeholder; use real content for real files)
+
+output:
+  type: object
+  fields: [ok, fileName, fileSize, mimeType, attachments]
+
+steps:
+  - eval: menus-reset.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-upload.js
+  - wait:
+      eval: menus-state.js
+      when:
+        uploadOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: upload-set-file.js
+  # The preview chip appears asynchronously after the change event is handled.
+  - wait:
+      eval: upload-state.js
+      when:
+        ready: true
+      timeout_ms: 15000
+      interval_ms: 300
+  - eval: menus-close.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: upload-verify.js

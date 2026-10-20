@@ -1,0 +1,88 @@
+---
+site: gemini
+name: send
+description: >-
+  Type and submit a prompt to Gemini, optionally pre-selecting a model
+long_running: true
+keep_tab: true
+
+wait_strategy:
+  eval: status.js
+  when:
+    isGenerating: false
+  # See wait.yaml: blocks the idle-before-first-token false positive.
+  require_started: true
+  initial_delay_ms: 300
+  timeout_ms: 300000
+  interval_ms: 1000
+
+hints:
+  long_running: >-
+    Gemini generation in progress. Pass --wait to wait until completion,
+    or run 'ap-browser gemini wait'.
+  in_flight: >-
+    Gemini is still generating in background. Run 'ap-browser gemini wait'
+    to continue waiting, or 'ap-browser gemini read' to inspect output.
+
+args:
+  prompt:
+    type: string
+    required: true
+    desc: prompt text to send
+  model:
+    type: string
+    default: ""
+    desc: optional model name as listed by 'gemini models' (e.g. '3.8 Flash', 'Pro'). Exact match wins, otherwise the shortest name containing the substring. The send aborts if the model cannot be selected.
+
+output:
+  type: object
+  fields: [sent, submitted, userTurns, modelSelected]
+
+# Every step is either a CLI-side wait (polls a state expression) or a
+# synchronous eval/fill/click, so a background tab cannot stall the send.
+steps:
+  - wait:
+      selector: "rich-textarea div.ql-editor"
+      timeout_ms: 10000
+  - eval: send-prepare.js
+  - wait:
+      eval: send-state.js
+      when:
+        modelReady: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: send-model.js
+  - wait:
+      eval: send-state.js
+      when:
+        menusClosed: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: send-model-check.js
+  # Typing goes through the REAL input pipeline (CDP insertText) so the
+  # Quill-backed editor state updates; synthetic input events do not.
+  - fill:
+      selector: "rich-textarea div.ql-editor"
+      value: "{{args.prompt}}"
+  - wait:
+      eval: send-state.js
+      when:
+        canSend: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: send-click.js
+  - wait:
+      eval: send-state.js
+      when:
+        accepted: true
+      timeout_ms: 5000
+      interval_ms: 300
+  # Only fires if the first click left the prompt in the composer.
+  - eval: send-retry.js
+  - wait:
+      eval: send-state.js
+      when:
+        accepted: true
+      timeout_ms: 10000
+      interval_ms: 300
+  - eval: send-verify.js

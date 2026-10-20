@@ -1,0 +1,45 @@
+site: gemini
+name: mode
+description: Select a Gemini tool (mode, e.g. Canvas, Deep Research) by index from 'gemini menus', or clear the selected tools
+
+args:
+  index:
+    type: int
+    desc: 0-based index into the available tools from 'gemini menus' (takes precedence over name)
+  name:
+    type: string
+    default: ""
+    desc: tool label or substring (labels are localized, prefer index)
+  clear:
+    type: bool
+    default: false
+    desc: deselect every tool currently selected in the composer instead of selecting one
+
+output:
+  type: object
+  fields: [modeIndex, modeName, selected, text, selectedTools]
+
+steps:
+  - eval: menus-reset.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-upload.js
+  - wait:
+      eval: menus-state.js
+      when:
+        uploadOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: mode-select.js
+  - eval: menus-close.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: mode-verify.js

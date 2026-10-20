@@ -44,6 +44,8 @@ args:
     default: "text/plain"
     desc: MIME type for attachment (e.g. text/plain, application/pdf)
 
+timeout: 60
+
 output:
   type: object
   fields: [account, sent, to, subject, hasAttachment, status]

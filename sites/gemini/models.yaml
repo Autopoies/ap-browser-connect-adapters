@@ -1,0 +1,33 @@
+site: gemini
+name: models
+description: >-
+  List Gemini models from the live mode menu (discovered at runtime, index-addressable). Read-only.
+
+output:
+  type: object
+  fields: [currentModel, models]
+
+steps:
+  - eval: menus-reset.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-mode.js
+  - wait:
+      eval: menus-state.js
+      when:
+        modeOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-read-models.js
+  - eval: menus-close.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: models-collect.js

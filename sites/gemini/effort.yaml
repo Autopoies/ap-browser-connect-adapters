@@ -1,0 +1,70 @@
+site: gemini
+name: effort
+description: Set Gemini thinking effort (thinking level) by index, as listed by 'gemini menus'
+
+args:
+  index:
+    type: int
+    desc: 0-based index from the thinking-level submenu (takes precedence over level)
+  level:
+    type: string
+    default: ""
+    desc: level label or substring as shown in the menu (labels are localized, prefer index)
+
+output:
+  type: object
+  fields: [effortIndex, effortLevel, selected, text, currentEffort]
+
+steps:
+  - eval: menus-reset.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-mode.js
+  - wait:
+      eval: menus-state.js
+      when:
+        modeOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-effort.js
+  - wait:
+      eval: menus-state.js
+      when:
+        effortOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: effort-select.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  # Reopen the submenu and read the levels back to verify the selection.
+  - eval: menus-open-mode.js
+  - wait:
+      eval: menus-state.js
+      when:
+        modeOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-effort.js
+  - wait:
+      eval: menus-state.js
+      when:
+        effortOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-read-efforts.js
+  - eval: menus-close.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: effort-verify.js

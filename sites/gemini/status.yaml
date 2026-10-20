@@ -1,0 +1,10 @@
+site: gemini
+name: status
+description: Check Gemini active generation state and response counts
+
+output:
+  type: object
+  fields: [isGenerating, currentActivity, awaitingReply, responseCount, userTurnCount, lastResponseLength]
+
+steps:
+  - eval: status.js

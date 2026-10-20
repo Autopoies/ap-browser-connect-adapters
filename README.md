@@ -1,6 +1,6 @@
 # ap-browser-connect-adapters
 
-Official site-adapter library for [Autopoies Browser Connect](https://github.com/autopoies/ap-browser-connect). 45 sites, 177 named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
+Official site-adapter library for [Autopoies Browser Connect](https://github.com/autopoies/ap-browser-connect). 47 sites, 196 named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
 
 ![Site Adapters Showcase](assets/adapters-demo.svg)
 
@@ -30,6 +30,7 @@ cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 | `devto` | DEV Community — platform for developers to write and share articles |
 | `douban` | 豆瓣电影 — 中文影评社区 |
 | `facebook` | Facebook — social networking platform |
+| `gemini` | Google Gemini web — chats, menus, models, model/effort/mode selection, send, read, status, wait, upload; requires login |
 | `gist` | GitHub Gists — code snippet hosting |
 | `github` | GitHub — code hosting platform |
 | `gmail` | Gmail web — inbox, drafts, spam, trash, labels, search, read, send, reply; requires login |
@@ -43,6 +44,7 @@ cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 | `linux-do` | LINUX DO — 中文技术社区 (Discourse) |
 | `lobsters` | Lobsters — computing-focused community centered around link aggregation and discussion |
 | `medium` | Medium articles and publication feeds |
+| `muse` | Meta Muse personal AI agent (`muse.ai`) — chats, open, side chat, send, read, status, wait, upload; requires login |
 | `npm` | npm — JavaScript package registry |
 | `pypi` | PyPI — Python package registry |
 | `reddit` | Reddit — community-driven link aggregation |

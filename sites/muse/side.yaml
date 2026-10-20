@@ -1,0 +1,17 @@
+site: muse
+name: side
+description: Start a new side chat (muse's new-conversation action; the composer then sends into it)
+
+output:
+  type: object
+  fields: [created, url]
+
+steps:
+  - eval: side-click.js
+  - wait:
+      eval: side-state.js
+      when:
+        newThread: true
+      timeout_ms: 8000
+      interval_ms: 200
+  - eval: side-verify.js

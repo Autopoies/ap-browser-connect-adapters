@@ -1,0 +1,28 @@
+site: muse
+name: upload
+description: Attach a local file to the Muse composer. Does not send.
+
+args:
+  name:
+    type: string
+    default: "attachment.png"
+    desc: filename with extension
+  b64:
+    type: string
+    default: ""
+    desc: base64-encoded file content (empty = built-in 1x1 PNG)
+
+output:
+  type: object
+  fields: [ok, fileName, fileSize, mimeType]
+
+steps:
+  - eval: upload.js
+  # Muse renders the attachment chip asynchronously; wait until the file name shows up.
+  - wait:
+      eval: upload-state.js
+      when:
+        ready: true
+      timeout_ms: 15000
+      interval_ms: 300
+  - eval: upload-verify.js

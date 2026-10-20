@@ -1,0 +1,10 @@
+site: muse
+name: status
+description: Check Muse active generation state and message counts
+
+output:
+  type: object
+  fields: [isGenerating, currentActivity, awaitingReply, responseCount, userTurnCount, lastResponseLength]
+
+steps:
+  - eval: status.js

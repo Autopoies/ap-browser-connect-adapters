@@ -1,0 +1,64 @@
+site: gemini
+name: menus
+description: >-
+  Read every Gemini composer menu (models, thinking effort, upload and tools, more-tools switches) and the tools already selected. Read-only; menus are opened and closed again.
+
+output:
+  type: object
+  fields: [models, efforts, tools, upload, moreTools]
+
+steps:
+  - eval: menus-reset.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-mode.js
+  - wait:
+      eval: menus-state.js
+      when:
+        modeOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-read-models.js
+  - eval: menus-open-effort.js
+  - wait:
+      eval: menus-state.js
+      when:
+        effortOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-read-efforts.js
+  - eval: menus-close.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-upload.js
+  - wait:
+      eval: menus-state.js
+      when:
+        uploadOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-read-tools.js
+  - eval: menus-open-more.js
+  - wait:
+      eval: menus-state.js
+      when:
+        toggleOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-read-toggles.js
+  - eval: menus-close.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-collect.js

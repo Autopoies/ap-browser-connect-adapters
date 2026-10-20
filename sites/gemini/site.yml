@@ -1,0 +1,4 @@
+site: gemini
+domain: gemini.google.com
+description: Google Gemini web app (chat, read responses, model switching, chat history)
+login_url: https://gemini.google.com/app

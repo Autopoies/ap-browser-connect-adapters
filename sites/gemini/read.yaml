@@ -1,0 +1,24 @@
+site: gemini
+name: read
+description: Extract assistant or user turns from the current Gemini conversation, with optional wait for generation to complete
+
+args:
+  index:
+    type: int
+    default: -1
+    desc: turn index within the selected role (-1 for latest)
+  role:
+    type: string
+    default: "assistant"
+    desc: turn filter (assistant, user, or all)
+  wait:
+    type: int
+    default: 0
+    desc: max wait time in seconds for generation to complete before reading
+
+output:
+  type: object
+  fields: [turnIndex, role, length, content, status]
+
+steps:
+  - eval: read.js

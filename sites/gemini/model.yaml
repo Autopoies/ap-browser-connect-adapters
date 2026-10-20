@@ -1,0 +1,56 @@
+site: gemini
+name: model
+description: Select the active Gemini model by index or name, as listed by 'gemini models'
+
+args:
+  index:
+    type: int
+    desc: 0-based index from 'gemini models' (takes precedence over name)
+  name:
+    type: string
+    default: ""
+    desc: model name or substring (e.g. 'Pro', '3.8 Flash'); exact match wins, otherwise the shortest name containing the substring
+
+output:
+  type: object
+  fields: [modelIndex, modelName, selected, text, currentModel]
+
+steps:
+  - eval: menus-reset.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-open-mode.js
+  - wait:
+      eval: menus-state.js
+      when:
+        modeOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: model-select.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  # Reopen and read back the current model to verify the selection took effect.
+  - eval: menus-open-mode.js
+  - wait:
+      eval: menus-state.js
+      when:
+        modeOpen: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: menus-read-models.js
+  - eval: menus-close.js
+  - wait:
+      eval: menus-state.js
+      when:
+        idle: true
+      timeout_ms: 5000
+      interval_ms: 200
+  - eval: model-verify.js

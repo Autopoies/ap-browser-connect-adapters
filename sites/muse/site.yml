@@ -1,0 +1,4 @@
+site: muse
+domain: muse.ai
+description: Meta Muse personal AI agent web app at muse.ai (chat, read replies, side-chat list, upload, status, wait)
+login_url: https://muse.ai/

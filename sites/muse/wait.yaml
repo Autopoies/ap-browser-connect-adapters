@@ -1,0 +1,24 @@
+---
+site: muse
+name: wait
+description: Wait until Muse finishes generating the current reply
+
+output:
+  type: object
+  fields:
+    - completed
+    - matched
+    - reason
+    - waited_ms
+    - current_status
+
+steps:
+  - wait:
+      eval: status.js
+      when:
+        settled: true
+      # settled = a reply exists after the last user message and nothing is
+      # streaming. An empty or re-rendering message list is not settled, which
+      # is what the old idle check mistook for completion.
+      timeout_ms: 300000
+      interval_ms: 1000
