@@ -1,6 +1,7 @@
 site: reddit
 name: user
-description: Fetch a Reddit user's recent posts and comments (no login)
+description: Fetch a user's rendered posts and comments (no login; unavailable metadata is empty)
+timeout: 90
 
 args:
   username:
@@ -17,6 +18,9 @@ output:
   fields: [kind, title, body, permalink, score, subreddit, created_utc]
 
 steps:
-  - goto: "https://www.reddit.com/user/{{args.username}}/overview.json?limit={{args.limit}}"
-  - wait: "pre"
+  - goto: "https://www.reddit.com/user/{{args.username}}/"
+  - wait: "shreddit-post[post-title][permalink], shreddit-profile-comment[href]"
+  - scroll:
+      count: "{{eval args.limit / 5 + 1}}"
+      pause_ms: 1200
   - eval: user.js
