@@ -1,6 +1,7 @@
 site: reddit
 name: top
-description: Fetch top posts from a subreddit (DOM mode, no JSON endpoints)
+description: Fetch rendered top posts over a time window (no login; no JSON endpoints)
+timeout: 90
 
 args:
   subreddit:
@@ -22,5 +23,8 @@ output:
 
 steps:
   - goto: "https://www.reddit.com/r/{{args.subreddit}}/top/?t={{args.period}}"
-  - wait: "shreddit-post, a[href*='/comments/']"
-  - eval: top.js
+  - wait: "shreddit-post[post-title][permalink]"
+  - scroll:
+      count: "{{eval args.limit / 5 + 1}}"
+      pause_ms: 1200
+  - eval: hot.js

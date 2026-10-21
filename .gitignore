@@ -1,3 +1,6 @@
+# Node (DOM regression tests only)
+node_modules/
+
 # Python (lint scripts)
 __pycache__/
 *.pyc

@@ -22,3 +22,11 @@ jobs:
         run: python3 scripts/lint_filters.py filters/ --schema scripts/filter-schema.json
       - name: Test filter linter fixtures
         run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install DOM test dependencies
+        run: npm ci --ignore-scripts
+      - name: Test rendered DOM adapters
+        run: npm test
