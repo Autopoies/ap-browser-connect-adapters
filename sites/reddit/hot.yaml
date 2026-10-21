@@ -1,6 +1,6 @@
 site: reddit
 name: hot
-description: Fetch hot posts from a subreddit (no login)
+description: Fetch hot posts from a subreddit (DOM mode, no JSON endpoints)
 
 args:
   subreddit:
@@ -17,6 +17,6 @@ output:
   fields: [title, url, permalink, score, num_comments, author, subreddit]
 
 steps:
-  - goto: "https://www.reddit.com/r/{{args.subreddit}}/hot/.json?limit={{args.limit}}"
-  - wait: "pre"
+  - goto: "https://www.reddit.com/r/{{args.subreddit}}/hot/"
+  - wait: "shreddit-post, a[href*='/comments/']"
   - eval: hot.js

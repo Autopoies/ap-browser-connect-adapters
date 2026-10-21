@@ -17,6 +17,6 @@ output:
   fields: [title, url, score, num_comments, author, subreddit, body, comments]
 
 steps:
-  - goto: "https://www.reddit.com{{args.permalink}}.json"
-  - wait: "pre"
+  - goto: "https://www.reddit.com{{args.permalink}}"
+  - wait: "shreddit-post"
   - eval: post.js

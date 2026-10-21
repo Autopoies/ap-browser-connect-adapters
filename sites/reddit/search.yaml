@@ -17,6 +17,6 @@ output:
   fields: [title, url, permalink, score, num_comments, author, subreddit]
 
 steps:
-  - goto: "https://www.reddit.com/search.json?q={{args.query}}&limit={{args.limit}}"
-  - wait: "pre"
+  - goto: "https://www.reddit.com/search/?q={{args.query}}"
+  - wait: "a[href*='/comments/']"
   - eval: search.js

@@ -1,17 +1,22 @@
 (() => {
-  const data = JSON.parse(document.body.innerText);
-  const children = data?.data?.children || [];
-  return children.slice(0, {{args.limit}}).map(c => {
-    const d = c.data || {};
-    const isComment = c.kind === 't1';
-    return {
-      kind: isComment ? 'comment' : 'link',
-      title: d.title || d.link_title || '',
-      body: (isComment ? d.body : d.selftext || '').slice(0, 500),
-      permalink: d.permalink ? 'https://www.reddit.com' + d.permalink : '',
-      score: String(d.score ?? ''),
-      subreddit: d.subreddit || '',
-      created_utc: d.created_utc ? new Date(d.created_utc * 1000).toISOString() : '',
-    };
+  const out = []; const seen = new Set(); const limit = {{args.limit}};
+  document.querySelectorAll('shreddit-post').forEach((el) => {
+    if (out.length >= limit) return;
+    const pl = el.getAttribute('permalink') || '';
+    if (!pl || seen.has(pl)) return;
+    seen.add(pl);
+    out.push({ kind: 'post', title: el.getAttribute('post-title') || '', body: '', permalink: 'https://www.reddit.com' + pl, score: el.getAttribute('score') || '', subreddit: (el.getAttribute('subreddit-prefixed-name') || '').replace(/^r\//, ''), created_utc: el.getAttribute('created-timestamp') || '' });
   });
+  if (out.length === 0) {
+    document.querySelectorAll('a[href*="/comments/"]').forEach((a) => {
+      if (out.length >= limit) return;
+      const href = (a.getAttribute('href') || '').split('?')[0];
+      const m = href.match(/\/r\/([^/]+)\/comments\//);
+      const t = (a.textContent || '').trim();
+      if (!m || !t || seen.has(href)) return;
+      seen.add(href);
+      out.push({ kind: 'post', title: t, body: '', permalink: 'https://www.reddit.com' + href, score: '', subreddit: m[1], created_utc: '' });
+    });
+  }
+  return out;
 })()

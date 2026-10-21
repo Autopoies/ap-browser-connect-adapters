@@ -17,6 +17,6 @@ output:
   fields: [kind, title, body, permalink, score, subreddit, created_utc]
 
 steps:
-  - goto: "https://www.reddit.com/user/{{args.username}}/overview.json?limit={{args.limit}}"
-  - wait: "pre"
+  - goto: "https://www.reddit.com/user/{{args.username}}/"
+  - wait: "shreddit-post, a[href*='/comments/']"
   - eval: user.js

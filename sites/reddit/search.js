@@ -1,16 +1,14 @@
 (() => {
-  const data = JSON.parse(document.body.innerText);
-  const children = data?.data?.children || [];
-  return children.slice(0, {{args.limit}}).map(c => {
-    const p = c.data || {};
-    return {
-      title: p.title || '',
-      url: p.url || '',
-      permalink: p.permalink ? 'https://www.reddit.com' + p.permalink : '',
-      score: String(p.score ?? ''),
-      num_comments: String(p.num_comments ?? ''),
-      author: p.author || '',
-      subreddit: p.subreddit || '',
-    };
+  const out = []; const seen = new Set(); const limit = {{args.limit}};
+  document.querySelectorAll('a[href*="/comments/"]').forEach((a) => {
+    if (out.length >= limit) return;
+    const href = (a.getAttribute('href') || '').split('?')[0];
+    const m = href.match(/\/r\/([^/]+)\/comments\//);
+    if (!m || seen.has(href)) return;
+    const t = (a.textContent || '').trim();
+    if (!t) return;
+    seen.add(href);
+    out.push({ title: t, url: 'https://www.reddit.com' + href, permalink: 'https://www.reddit.com' + href, score: '', num_comments: '', author: '', subreddit: m[1] });
   });
+  return out;
 })()
