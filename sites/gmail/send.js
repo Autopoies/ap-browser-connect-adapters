@@ -7,6 +7,13 @@
 	const attachName = "{{args.attachment_name}}".trim();
 	const attachContent = "{{args.attachment_content}}";
 	const attachType = "{{args.attachment_type}}".trim() || "text/plain";
+	const safety = window.__apbGmail;
+	const expected = {
+		to: safety.addresses(toParam), cc: safety.addresses(ccParam),
+		bcc: safety.addresses(bccParam), subject: subjectParam, body: bodyParam,
+	};
+	if (!expected.to.length) throw new Error("Gmail preflight: To is empty");
+	if (!!attachName !== !!attachContent) throw new Error("Gmail preflight: attachment name and content must both be supplied");
 
 	function getAccount() {
 		const globals = window["GLOBALS"];
@@ -40,10 +47,8 @@
 		return "";
 	}
 
-	const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 	function isElementVisible(el) {
-		if (!el || !el.isConnected) return false;
+		if (!el || !el.isConnected || window.getComputedStyle(el).visibility === "hidden") return false;
 		let cur = el;
 		while (cur && cur.nodeType === 1) {
 			if (cur.hidden || cur.getAttribute("aria-hidden") === "true") {
@@ -52,7 +57,6 @@
 			const style = window.getComputedStyle(cur);
 			if (
 				style.display === "none" ||
-				style.visibility === "hidden" ||
 				style.opacity === "0"
 			) {
 				return false;
@@ -102,159 +106,28 @@
 		});
 	}
 
-	function findComposeDialog() {
-		const candidates = Array.from(
-			document.querySelectorAll('div.AD, div.M9, div[role="dialog"]'),
-		);
-		for (let i = candidates.length - 1; i >= 0; i--) {
-			const el = candidates[i];
-			if (
-				el.querySelector(
-					'input[name="subjectbox"], div.Am.Al.editable, div[role="textbox"][g_editable="true"], div[g_editable="true"]',
-				)
-			) {
-				return el;
-			}
+	// open-compose.js + native clicks expand the minimized window and the
+	// optional recipient groups. A synthetic .click() does not reliably do so.
+	const dialog = safety.compose;
+	if (!dialog?.isConnected) throw new Error("Gmail preflight: compose dialog not found");
+	const ready = await waitFor(() => safety.visible(dialog.querySelector('[contenteditable="true"]')) &&
+		['to', 'cc', 'bcc'].every(kind => safety.visible(safety.recipientInput(dialog, kind))), 5000);
+	if (!ready) throw new Error("Gmail preflight: compose fields are not visible");
+
+	const existing = safety.recipients(dialog);
+	for (const kind of ['to', 'cc', 'bcc']) {
+		if (existing[kind].length || existing.pending.includes(kind)) {
+			throw new Error("Gmail preflight: existing recipients; use a fresh compose window");
 		}
-		return document.querySelector("div.AD");
+		safety.recipientInput(dialog, kind).setAttribute(`data-apb-gmail-${kind}`, '');
 	}
 
-	// 1. Open compose dialog if not already open
-	let dialog = findComposeDialog();
-	if (!dialog) {
-		const composeBtn =
-			document.querySelector(
-				'div[gh="cm"], div[role="button"][jscontroller*="eIuAF"], .T-I.T-I-KE.L3',
-			) ||
-			(await waitFor(
-				() =>
-					document.querySelector(
-						'div[gh="cm"], div[role="button"][jscontroller*="eIuAF"], .T-I.T-I-KE.L3',
-					),
-				4000,
-			));
-		if (composeBtn) {
-			composeBtn.click();
-		} else {
-			// Fallback navigation
-			window.location.hash = "#inbox?compose=new";
-		}
-
-		dialog = await waitFor(() => findComposeDialog(), 6000);
-	}
-
-	if (!dialog) {
-		return {
-			account: getAccount(),
-			sent: false,
-			error: "Compose dialog could not be opened",
-		};
-	}
-
-	// Ensure inner compose fields (editor + send button) have finished mounting
-	await waitFor(
-		() =>
-			dialog.querySelector(
-				'div.Am.Al.editable, div[role="textbox"][g_editable="true"], div[g_editable="true"]',
-			) &&
-			dialog.querySelector(
-				'div.aoO.v7, div.T-I.J-J5-Ji.aoO, div[role="button"][data-tooltip*="Enter"]',
-			),
-		4000,
-	);
-
-	// 2. Open CC / BCC fields if requested
-	if (ccParam) {
-		const ccTrigger = dialog.querySelector(
-			'span.pE, [data-tooltip*="Cc"], [aria-label*="Cc"], [aria-label*="抄送"]',
-		);
-		if (ccTrigger) {
-			ccTrigger.click();
-			await sleep(100);
-		}
-	}
-
-	if (bccParam) {
-		const bccTrigger = dialog.querySelector(
-			'span.pB, [data-tooltip*="Bcc"], [aria-label*="Bcc"], [aria-label*="密送"]',
-		);
-		if (bccTrigger) {
-			bccTrigger.click();
-			await sleep(100);
-		}
-	}
-
-	// Helper to fill recipient input
-	function addRecipients(inputEl, emailsStr) {
-		if (!inputEl || !emailsStr) return;
-		const emails = emailsStr
-			.split(/[,;\n]+/)
-			.map((s) => s.trim())
-			.filter(Boolean);
-		for (const email of emails) {
-			inputEl.focus();
-			inputEl.value = email;
-			inputEl.dispatchEvent(new Event("input", { bubbles: true }));
-			inputEl.dispatchEvent(
-				new KeyboardEvent("keydown", {
-					key: "Enter",
-					code: "Enter",
-					keyCode: 13,
-					which: 13,
-					bubbles: true,
-				}),
-			);
-			inputEl.dispatchEvent(
-				new KeyboardEvent("keyup", {
-					key: "Enter",
-					code: "Enter",
-					keyCode: 13,
-					which: 13,
-					bubbles: true,
-				}),
-			);
-			inputEl.dispatchEvent(new Event("change", { bubbles: true }));
-			inputEl.blur();
-		}
-	}
-
-	// 3. Fill To recipients
-	const recipientInputs = Array.from(
-		dialog.querySelectorAll(
-			'input.agP, input[role="combobox"], div[name="to"] input, input[peoplekit-id]',
-		),
-	);
-	if (recipientInputs.length > 0 && toParam) {
-		addRecipients(recipientInputs[0], toParam);
-	}
-
-	// Fill CC / BCC if inputs are present
-	if (recipientInputs.length > 1 && ccParam) {
-		addRecipients(recipientInputs[1], ccParam);
-	}
-	if (recipientInputs.length > 2 && bccParam) {
-		addRecipients(recipientInputs[2], bccParam);
-	}
-
-	// 4. Fill Subject
+	// Native fill steps in send.yaml enter subject/body after preparation. Do
+	// not use textContent + synthetic input: Gmail can display but not send it.
 	const subjectInput = dialog.querySelector('input[name="subjectbox"]');
-	if (subjectInput && subjectParam) {
-		subjectInput.focus();
-		subjectInput.value = subjectParam;
-		subjectInput.dispatchEvent(new Event("input", { bubbles: true }));
-		subjectInput.dispatchEvent(new Event("change", { bubbles: true }));
-	}
-
-	// 5. Fill Body
-	const bodyEditor = dialog.querySelector(
-		'div.Am.Al.editable, div[role="textbox"][g_editable="true"], div[g_editable="true"]',
-	);
-	if (bodyEditor && bodyParam) {
-		bodyEditor.focus();
-		bodyEditor.textContent = bodyParam;
-		bodyEditor.dispatchEvent(new Event("input", { bubbles: true }));
-		bodyEditor.dispatchEvent(new Event("change", { bubbles: true }));
-	}
+	if (!subjectInput) throw new Error("Gmail preflight: subject field not found");
+	subjectInput.setAttribute('data-apb-gmail-subject', '');
+	const bodyEditor = dialog.querySelector('[contenteditable="true"]');
 
 	// Helpers to inspect attachment upload state in the compose dialog
 	function getAttachmentSnapshot(scope, expectedName = "") {
@@ -466,54 +339,17 @@
 		}
 
 		// Wait until the attachment finishes uploading and is bound to the draft
-		let sawProgress = false;
-		let chipStableSince = 0;
 		const uploadCompleted = await waitFor(() => {
 			const snap = getAttachmentSnapshot(dialog, attachName);
-			if (snap.activeProgress.length > 0) {
-				sawProgress = true;
-				chipStableSince = 0;
-				return false;
-			}
-			const hasNewInput = snap.attachInputs.length > baseInputCount;
-			const hasNewChip =
-				snap.chips.length > baseChipCount || snap.matchingChip != null;
-			if (!hasNewInput && !hasNewChip) {
-				return false;
-			}
-			if (
-				hasNewInput ||
-				snap.matchingChipComplete ||
-				snap.allChipsComplete ||
-				(sawProgress && hasNewChip)
-			) {
-				return true;
-			}
-			if (!chipStableSince) {
-				chipStableSince = Date.now();
-			}
-			return Date.now() - chipStableSince >= 1500;
+			return snap.activeProgress.length === 0 && snap.matchingChipComplete;
 		}, 30000);
 
 		if (!uploadCompleted) {
-			return {
-				account: getAccount(),
-				sent: false,
-				to: toParam,
-				subject: subjectParam,
-				hasAttachment: false,
-				error: started
-					? "Attachment upload did not complete before timeout"
-					: "Attachment could not be added to compose dialog",
-			};
+			throw new Error(started
+				? "Gmail preflight: attachment upload did not complete before timeout"
+				: "Gmail preflight: attachment could not be added to compose dialog");
 		}
 
-		// Allow Gmail's compose controller to commit the uploaded attachment ID to the draft
-		await sleep(1200);
-		await waitFor(
-			() => getAttachmentSnapshot(dialog, attachName).activeProgress.length === 0,
-			5000,
-		);
 		attached = true;
 	} else {
 		// Even if attachment args were not passed (e.g. attached earlier via `ap-browser upload`),
@@ -523,20 +359,11 @@
 			preSnap.activeProgress.length > 0 ||
 			(preSnap.chips.length > 0 && !preSnap.allChipsComplete)
 		) {
-			let chipStableSince = 0;
-			await waitFor(() => {
+			const ready = await waitFor(() => {
 				const snap = getAttachmentSnapshot(dialog);
-				if (snap.activeProgress.length > 0) {
-					chipStableSince = 0;
-					return false;
-				}
-				if (snap.allChipsComplete || snap.attachInputs.length > 0) {
-					return true;
-				}
-				if (!chipStableSince) chipStableSince = Date.now();
-				return Date.now() - chipStableSince >= 1500;
+				return snap.activeProgress.length === 0 && snap.allChipsComplete;
 			}, 30000);
-			await sleep(1200);
+			if (!ready) throw new Error("Gmail preflight: existing attachment upload did not complete");
 		}
 		const finalSnap = getAttachmentSnapshot(dialog);
 		if (finalSnap.attachInputs.length > 0 || finalSnap.chips.length > 0) {
@@ -544,33 +371,15 @@
 		}
 	}
 
-	// 7. Click Send
-	const sendBtn = dialog.querySelector(
-		'div.aoO.v7, div.T-I.J-J5-Ji.aoO, div[role="button"][data-tooltip*="Enter"]',
-	);
-	if (!sendBtn) {
-		return {
-			account: getAccount(),
-			sent: false,
-			error: "Send button not found",
-		};
-	}
-
-	sendBtn.click();
-
-	// Wait for compose dialog to dismiss or sent toast to appear
-	await waitFor(
-		() => !dialog.isConnected || !isElementVisible(dialog),
-		10000,
-	);
-	await sleep(500);
-
-	return {
-		account: getAccount(),
-		sent: true,
-		to: toParam,
-		subject: subjectParam,
+	// No send in the preparation phase. Native input and a complete read-back
+	// must succeed before submit.js is allowed to click the scoped Send button.
+	safety.stage(dialog, bodyEditor, expected, {
+		account: getAccount(), to: toParam, subject: subjectParam,
 		hasAttachment: attached,
-		status: "sent",
-	};
+	}, () => {
+		const snap = getAttachmentSnapshot(dialog, attachName);
+		return snap.activeProgress.length === 0 &&
+			(!attached || (attachName ? snap.matchingChipComplete : snap.allChipsComplete));
+	});
+	return { sent: false, status: "prepared" };
 })();

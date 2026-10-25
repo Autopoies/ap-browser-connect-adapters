@@ -44,11 +44,38 @@ args:
     default: "text/plain"
     desc: MIME type for attachment (e.g. text/plain, application/pdf)
 
-timeout: 60
+# Sending is asynchronous (up to 30s Undo Send + attachment upload).
+# Retain auto-tabs even on uncertainty; closing can cancel a queued send.
+timeout: 150
+keep_tab: true
 
 output:
   type: object
-  fields: [account, sent, to, subject, hasAttachment, status]
+  fields: [account, sent, to, subject, hasAttachment, status, confirmation, verified, error, hint, retrySafe]
 
 steps:
+  - eval: compose-safety.js
+  - eval: open-compose.js
+  - click: '[data-apb-gmail-expand]'
+  - click: '[data-apb-gmail-cc-toggle]'
+  - click: '[data-apb-gmail-bcc-toggle]'
   - eval: send.js
+  - fill:
+      selector: '[data-apb-gmail-to]'
+      value: '{{args.to}}'
+  - press: Enter
+  - fill:
+      selector: '[data-apb-gmail-cc]'
+      value: '{{args.cc}}'
+  - press: Enter
+  - fill:
+      selector: '[data-apb-gmail-bcc]'
+      value: '{{args.bcc}}'
+  - press: Enter
+  - fill:
+      selector: '[data-apb-gmail-subject]'
+      value: '{{args.subject}}'
+  - fill:
+      selector: '[data-apb-gmail-body]'
+      value: '{{args.body}}'
+  - eval: submit.js

@@ -34,11 +34,18 @@ args:
     default: "text/plain"
     desc: MIME type for attachment
 
-timeout: 60
+# Retain the auto-tab through Undo Send, including uncertain/error results.
+timeout: 150
+keep_tab: true
 
 output:
   type: object
-  fields: [account, sent, threadId, subject, replyAll, hasAttachment, status]
+  fields: [account, sent, threadId, subject, replyAll, hasAttachment, status, confirmation, verified, error, hint, retrySafe]
 
 steps:
+  - eval: compose-safety.js
   - eval: reply.js
+  - fill:
+      selector: '[data-apb-gmail-body]'
+      value: '{{args.body}}'
+  - eval: submit.js

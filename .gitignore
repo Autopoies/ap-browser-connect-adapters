@@ -4,6 +4,9 @@ __pycache__/
 .venv/
 venv/
 
+# JavaScript adapter regression tests
+node_modules/
+
 # IDE / editor
 .idea/
 .vscode/

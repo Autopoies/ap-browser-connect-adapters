@@ -130,6 +130,10 @@ Before submitting a PR, ensure your adapters pass the CI linter:
 python scripts/lint_adapters.py sites/
 ```
 
+Gmail send/reply safety and result statuses are documented in
+[sites/gmail/README.md](sites/gmail/README.md). Run their offline regression
+suite with `npm ci --ignore-scripts && npm test`; it sends no live mail.
+
 ## Relationship to ap-browser-connect
 
 This repository provides the runtime data for the `ap-browser` CLI. The CLI loads these adapters dynamically from `~/.ap-browser/sites/` at runtime, meaning there is zero build-time coupling between the CLI and the adapters. The source of truth for the adapter schema is maintained here in `scripts/adapter-schema.json`.

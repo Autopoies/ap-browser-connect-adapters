@@ -5,6 +5,8 @@
 	const attachName = "{{args.attachment_name}}".trim();
 	const attachContent = "{{args.attachment_content}}";
 	const attachType = "{{args.attachment_type}}".trim() || "text/plain";
+	const safety = window.__apbGmail;
+	if (!!attachName !== !!attachContent) throw new Error("Gmail preflight: attachment name and content must both be supplied");
 
 	function getAccount() {
 		const globals = window["GLOBALS"];
@@ -38,10 +40,8 @@
 		return "";
 	}
 
-	const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 	function isElementVisible(el) {
-		if (!el || !el.isConnected) return false;
+		if (!el || !el.isConnected || window.getComputedStyle(el).visibility === "hidden") return false;
 		let cur = el;
 		while (cur && cur.nodeType === 1) {
 			if (cur.hidden || cur.getAttribute("aria-hidden") === "true") {
@@ -50,7 +50,6 @@
 			const style = window.getComputedStyle(cur);
 			if (
 				style.display === "none" ||
-				style.visibility === "hidden" ||
 				style.opacity === "0"
 			) {
 				return false;
@@ -102,39 +101,40 @@
 
 	// 1. If targetId is specified, navigate to it
 	if (targetId) {
+		const previousHash = window.location.hash;
+		const previousHeader = safety.threadHeader();
+		const previousText = previousHeader?.textContent;
+		let requestedHash = '';
 		if (/^\d+$/.test(targetId)) {
-			const index = parseInt(targetId, 10) - 1;
-			const rows = document.querySelectorAll("tr.zA");
-			if (rows[index]) {
-				rows[index].click();
-			}
+			const row = [...document.querySelectorAll('tr.zA')].filter(safety.visible)[Number(targetId) - 1];
+			if (!row) throw new Error("Gmail preflight: requested reply row not found");
+			row.click();
 		} else {
-			const cleanId = targetId.replace(/^#/, "");
-			if (cleanId.includes("/")) {
-				window.location.hash = "#" + cleanId;
-			} else {
-				window.location.hash = "#all/" + cleanId;
-			}
+			const cleanId = targetId.replace(/^#/, '');
+			requestedHash = '#' + (cleanId.includes('/') ? cleanId : 'all/' + cleanId);
+			window.location.hash = requestedHash;
 		}
-
-		// Wait for email view to load
-		await waitFor(
-			() => document.querySelector("h2.hP, div.gs, div.adn"),
-			6000,
-		);
+		const loaded = await waitFor(() => {
+			const header = safety.threadHeader();
+			const routeMatches = requestedHash ? window.location.hash === requestedHash : window.location.hash !== previousHash;
+			const viewChanged = header && (header !== previousHeader || header.textContent !== previousText);
+			return routeMatches && header && (requestedHash === previousHash || viewChanged);
+		}, 10000);
+		if (!loaded) throw new Error("Gmail preflight: requested reply thread did not finish loading");
 	}
 
 	// 2. Find reply trigger
 	let replyTrigger = null;
 	if (replyAll) {
-		replyTrigger = document.querySelector(
+		replyTrigger = [...document.querySelectorAll(
 			'span.ams.bkI, [aria-label*="Reply all"], [data-tooltip*="Reply all"], [aria-label*="全部回复"]',
-		);
+		)].filter(safety.visible).pop();
 	}
+	if (replyAll && !replyTrigger) throw new Error("Gmail preflight: Reply all is unavailable");
 	if (!replyTrigger) {
-		replyTrigger = document.querySelector(
-			'span.ams.bkH, span.ams, div.m9, div.ip.iU, button[aria-label*="Reply"], button[aria-label*="回复"]',
-		);
+		replyTrigger = [...document.querySelectorAll(
+			'span.ams.bkH, [aria-label="Reply"], [data-tooltip="Reply"], [aria-label="回复"]',
+		)].filter(safety.visible).pop();
 	}
 
 	if (replyTrigger) {
@@ -144,30 +144,35 @@
 
 	// 3. Wait for editor
 	const editor = await waitFor(
-		() =>
-			document.querySelector(
-				'div.Am.Al.editable, div[role="textbox"][g_editable="true"], div[g_editable="true"]',
-			),
+		() => Array.from(document.querySelectorAll('[contenteditable="true"][g_editable="true"]'))
+			.filter(el => !el.closest('div[role="dialog"]') && safety.visible(el)).pop(),
 		6000,
 	);
 
-	if (!editor) {
-		return {
-			account: getAccount(),
-			sent: false,
-			error: "Reply editor could not be opened",
-		};
+	if (!editor) throw new Error("Gmail preflight: reply editor could not be opened");
+
+	const replyScope = editor.closest('div.ip, div.AD, div[role="dialog"]') ||
+		editor.closest('div.M9, table.aoP');
+	if (!replyScope) throw new Error("Gmail preflight: reply container not found");
+	// Expand Gmail's collapsed recipient summary so the actual To/Cc/Bcc
+	// chips, not display names, can be snapshotted before attachment upload.
+	if (!safety.recipients(replyScope).to.length) {
+		replyScope.querySelector('.aoD, .az6')?.click();
+		await waitFor(() => safety.recipients(replyScope).to.length, 3000);
 	}
-
-	const replyScope =
-		editor.closest('div.M9, div.ip, div.AD, div[role="dialog"], table.aoP') ||
-		document;
-
-	// 4. Fill body
-	editor.focus();
-	editor.textContent = bodyParam;
-	editor.dispatchEvent(new Event("input", { bubbles: true }));
-	editor.dispatchEvent(new Event("change", { bubbles: true }));
+	const originalRecipients = safety.recipients(replyScope);
+	if (!originalRecipients.to.length || originalRecipients.pending.length || originalRecipients.unclassified.length) {
+		throw new Error("Gmail preflight: reply recipients could not be verified");
+	}
+	const expected = {
+		to: originalRecipients.to, cc: originalRecipients.cc, bcc: originalRecipients.bcc,
+		subject: replyScope.querySelector('input[name="subjectbox"]')?.value ??
+			(safety.threadHeader()?.textContent?.trim() || ''),
+		threadSubject: safety.threadHeader()?.textContent?.trim() || '',
+		threadHash: window.location.hash, body: bodyParam,
+	};
+	if (!safety.threadHeader()) throw new Error("Gmail preflight: reply subject not found or ambiguous");
+	// reply.yaml enters the body through the same native fill path as the CLI.
 
 	// Helpers to inspect attachment upload state in the reply container
 	function getAttachmentSnapshot(scope, expectedName = "") {
@@ -378,53 +383,17 @@
 			started = !!(await waitFor(hasUploadStarted, 2500));
 		}
 
-		let sawProgress = false;
-		let chipStableSince = 0;
 		const uploadCompleted = await waitFor(() => {
 			const snap = getAttachmentSnapshot(replyScope, attachName);
-			if (snap.activeProgress.length > 0) {
-				sawProgress = true;
-				chipStableSince = 0;
-				return false;
-			}
-			const hasNewInput = snap.attachInputs.length > baseInputCount;
-			const hasNewChip =
-				snap.chips.length > baseChipCount || snap.matchingChip != null;
-			if (!hasNewInput && !hasNewChip) {
-				return false;
-			}
-			if (
-				hasNewInput ||
-				snap.matchingChipComplete ||
-				snap.allChipsComplete ||
-				(sawProgress && hasNewChip)
-			) {
-				return true;
-			}
-			if (!chipStableSince) {
-				chipStableSince = Date.now();
-			}
-			return Date.now() - chipStableSince >= 1500;
+			return snap.activeProgress.length === 0 && snap.matchingChipComplete;
 		}, 30000);
 
 		if (!uploadCompleted) {
-			return {
-				account: getAccount(),
-				sent: false,
-				replyAll,
-				hasAttachment: false,
-				error: started
-					? "Attachment upload did not complete before timeout"
-					: "Attachment could not be added to reply editor",
-			};
+			throw new Error(started
+				? "Gmail preflight: attachment upload did not complete before timeout"
+				: "Gmail preflight: attachment could not be added to reply editor");
 		}
 
-		await sleep(1200);
-		await waitFor(
-			() =>
-				getAttachmentSnapshot(replyScope, attachName).activeProgress.length === 0,
-			5000,
-		);
 		attached = true;
 	} else {
 		const preSnap = getAttachmentSnapshot(replyScope);
@@ -432,20 +401,11 @@
 			preSnap.activeProgress.length > 0 ||
 			(preSnap.chips.length > 0 && !preSnap.allChipsComplete)
 		) {
-			let chipStableSince = 0;
-			await waitFor(() => {
+			const ready = await waitFor(() => {
 				const snap = getAttachmentSnapshot(replyScope);
-				if (snap.activeProgress.length > 0) {
-					chipStableSince = 0;
-					return false;
-				}
-				if (snap.allChipsComplete || snap.attachInputs.length > 0) {
-					return true;
-				}
-				if (!chipStableSince) chipStableSince = Date.now();
-				return Date.now() - chipStableSince >= 1500;
+				return snap.activeProgress.length === 0 && snap.allChipsComplete;
 			}, 30000);
-			await sleep(1200);
+			if (!ready) throw new Error("Gmail preflight: existing attachment upload did not complete");
 		}
 		const finalSnap = getAttachmentSnapshot(replyScope);
 		if (finalSnap.attachInputs.length > 0 || finalSnap.chips.length > 0) {
@@ -453,41 +413,13 @@
 		}
 	}
 
-	// 6. Click send
-	const sendBtn =
-		replyScope.querySelector(
-			'div.aoO.v7, div.T-I.J-J5-Ji.aoO, div[role="button"][data-tooltip*="Enter"]',
-		) ||
-		document.querySelector(
-			'div.aoO.v7, div.T-I.J-J5-Ji.aoO, div[role="button"][data-tooltip*="Enter"]',
-		);
-	if (!sendBtn) {
-		return {
-			account: getAccount(),
-			sent: false,
-			error: "Send button not found",
-		};
-	}
-
-	sendBtn.click();
-
-	// Wait for reply editor to dismiss or send to complete
-	await waitFor(
-		() => !editor.isConnected || !isElementVisible(editor),
-		10000,
-	);
-	await sleep(500);
-
-	const subject = document.querySelector("h2.hP")?.textContent?.trim() || "";
-	const threadHash = window.location.hash.replace(/^#/, "");
-
-	return {
-		account: getAccount(),
-		sent: true,
-		threadId: threadHash,
-		subject,
-		replyAll,
-		hasAttachment: attached,
-		status: "sent",
-	};
+	safety.stage(replyScope, editor, expected, {
+		account: getAccount(), threadId: window.location.hash.replace(/^#/, ''),
+		subject: expected.subject, replyAll, hasAttachment: attached,
+	}, () => {
+		const snap = getAttachmentSnapshot(replyScope, attachName);
+		return snap.activeProgress.length === 0 &&
+			(!attached || (attachName ? snap.matchingChipComplete : snap.allChipsComplete));
+	});
+	return { sent: false, status: "prepared" };
 })();
