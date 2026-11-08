@@ -13,6 +13,10 @@
 
 	function visible(el) {
 		if (!el?.isConnected || window.getComputedStyle(el).visibility === 'hidden') return false;
+		// Gmail mounts recipient inputs with visible CSS but a 0x0 rect before
+		// the corresponding header is actually expanded.
+		const rect = el.getBoundingClientRect();
+		if (!rect || rect.width <= 0 || rect.height <= 0) return false;
 		// visibility is overridable by descendants (Gmail does this); display
 		// and opacity on an ancestor are not. Do not treat them identically.
 		for (let cur = el; cur?.nodeType === 1; cur = cur.parentElement) {

@@ -31,10 +31,16 @@ ap-browser gmail send recipient@example.com --subject 'Subject' --body 'Body' \
 ```
 
 Use a non-empty subject: exact-subject Sent verification is part of success.
-Gmail's compose expansion and Send use scoped synthetic `element.click()`;
-Cc/Bcc links use synthetic Enter. The generic native mouse path currently
-delivers trusted down/up events to Gmail without synthesizing `click`.
-Recipient, subject and body values still use native `fill` plus read-back.
+No fixed startup sleep or inbox-row wait is needed. Field readiness requires a
+non-zero bounding rect, not just visible CSS. If cold Gmail ignores the first
+compose/header activation, the adapter retries only that unexpanded control
+for up to 10 seconds; it never retries Send.
+
+Gmail's Maximize and Send controls use focused, scoped synthetic
+`element.click()`; Cc/Bcc links use focused synthetic Enter. The generic
+native mouse path currently delivers trusted down/up events to Gmail without
+synthesizing `click`. Recipient, subject and body values still use native
+`fill` plus read-back.
 
 ## Results and tab ownership
 

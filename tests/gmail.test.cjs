@@ -97,16 +97,43 @@ async function runAdapter(command, overrides = {}, options = {}) {
       const input = dialog.querySelector(`div[name=${kind}] input`);
       const trigger = dialog.querySelector(kind === 'cc' ? '.pE' : '.pB');
       input.style.display = 'none';
+      let attempts = 0;
       trigger.addEventListener('keydown', event => {
-        if (event.key !== 'Enter') return;
+        if (event.key !== 'Enter' || ++attempts < 2) return;
         input.style.display = 'block';
         trigger.style.display = 'none';
       });
     }
   }
+  if (options.zeroGeometryHeaders) {
+    for (const kind of ['cc', 'bcc']) {
+      const input = dialog.querySelector(`div[name=${kind}] input`);
+      const trigger = dialog.querySelector(kind === 'cc' ? '.pE' : '.pB');
+      input.setAttribute('data-zero-until-enter', 'true');
+      trigger.addEventListener('keydown', event => {
+        if (event.key === 'Enter') input.setAttribute('data-entered', 'true');
+      });
+    }
+  }
+  if (options.minimizedCompose) {
+    editor.style.display = 'none';
+    const title = document.createElement('div');
+    title.className = 'aYF';
+    dialog.append(title);
+    const maximize = document.createElement('button');
+    maximize.setAttribute('aria-label', 'Maximize');
+    let maximizeAttempts = 0;
+    maximize.addEventListener('click', () => {
+      if (++maximizeAttempts >= 2) editor.style.display = 'block';
+    });
+    dialog.append(maximize);
+  }
   if (options.hiddenAncestor) dialog.style.visibility = 'hidden';
   window.innerHeight = 800;
   window.HTMLElement.prototype.getBoundingClientRect = function () {
+    if (this.hasAttribute('data-zero-until-enter') && !this.hasAttribute('data-entered')) {
+      return { width: 0, height: 0, top: 0, bottom: 0 };
+    }
     const offscreen = options.offscreenToast && this.id === 'notification';
     return { width: 200, height: 30, top: offscreen ? -10000 : 10, bottom: offscreen ? -9970 : 40 };
   };
@@ -230,6 +257,20 @@ test('send: collapsed Cc/Bcc links accept synthetic Enter', async () => {
   const run = await runAdapter('send', {}, { collapsedHeaders: true });
   assert.ifError(run.error);
   assert.equal(run.result.sent, true, JSON.stringify(run.result));
+});
+
+test('send: minimized compose expands through Maximize, not the title', async () => {
+  const run = await runAdapter('send', {}, { minimizedCompose: true });
+  assert.ifError(run.error);
+  assert.equal(run.result.sent, true, JSON.stringify(run.result));
+});
+
+test('send: zero-geometry Cc/Bcc inputs are activated before filling', async () => {
+  const run = await runAdapter('send', {}, { zeroGeometryHeaders: true });
+  assert.ifError(run.error);
+  for (const kind of ['cc', 'bcc']) {
+    assert.equal(run.document.querySelector(`div[name=${kind}] input`).getAttribute('data-entered'), 'true');
+  }
 });
 
 test('send: Gmail controls do not use the broken native-click path', async () => {
