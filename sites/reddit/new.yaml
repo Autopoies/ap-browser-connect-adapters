@@ -1,12 +1,13 @@
 site: reddit
 name: new
-description: Fetch newest posts from a subreddit (no login)
+description: Fetch rendered newest posts from a subreddit (no login; no JSON endpoints)
+timeout: 90
 
 args:
   subreddit:
     type: string
     required: true
-    desc: subreddit name
+    desc: subreddit name (e.g. programming, rust, MachineLearning)
   limit:
     type: int
     default: 25
@@ -17,6 +18,9 @@ output:
   fields: [title, url, permalink, score, num_comments, author, subreddit]
 
 steps:
-  - goto: "https://www.reddit.com/r/{{args.subreddit}}/new/.json?limit={{args.limit}}"
-  - wait: "pre"
+  - goto: "https://www.reddit.com/r/{{args.subreddit}}/new/"
+  - wait: "shreddit-post[post-title][permalink]"
+  - scroll:
+      count: "{{eval args.limit / 5 + 1}}"
+      pause_ms: 1200
   - eval: hot.js

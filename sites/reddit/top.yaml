@@ -1,12 +1,13 @@
 site: reddit
 name: top
-description: Fetch top posts from a subreddit over a time window (no login)
+description: Fetch rendered top posts over a time window (no login; no JSON endpoints)
+timeout: 90
 
 args:
   subreddit:
     type: string
     required: true
-    desc: subreddit name
+    desc: subreddit name (e.g. programming, rust, MachineLearning)
   period:
     type: string
     default: day
@@ -21,6 +22,9 @@ output:
   fields: [title, url, permalink, score, num_comments, author, subreddit]
 
 steps:
-  - goto: "https://www.reddit.com/r/{{args.subreddit}}/top/.json?limit={{args.limit}}&t={{args.period}}"
-  - wait: "pre"
+  - goto: "https://www.reddit.com/r/{{args.subreddit}}/top/?t={{args.period}}"
+  - wait: "shreddit-post[post-title][permalink]"
+  - scroll:
+      count: "{{eval args.limit / 5 + 1}}"
+      pause_ms: 1200
   - eval: hot.js

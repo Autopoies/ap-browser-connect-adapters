@@ -1,6 +1,7 @@
 site: reddit
 name: search
-description: Search Reddit posts across all subreddits (no login)
+description: Search rendered Reddit posts (no login; url is the post permalink, unavailable metadata is empty)
+timeout: 90
 
 args:
   query:
@@ -17,6 +18,9 @@ output:
   fields: [title, url, permalink, score, num_comments, author, subreddit]
 
 steps:
-  - goto: "https://www.reddit.com/search.json?q={{args.query}}&limit={{args.limit}}"
-  - wait: "pre"
+  - goto: "https://www.reddit.com/search/?q={{args.query}}&type=posts"
+  - wait: "a[data-testid='post-title'], a[data-testid='post-title-text'], a[slot='title']"
+  - scroll:
+      count: "{{eval args.limit / 5 + 1}}"
+      pause_ms: 1200
   - eval: search.js
