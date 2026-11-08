@@ -51,14 +51,11 @@ keep_tab: true
 
 output:
   type: object
-  fields: [account, sent, to, subject, hasAttachment, status, confirmation, verified, error, hint, retrySafe]
+  fields: [account, sent, to, subject, hasAttachment, status, confirmation, sent_search, verified, error, hint, retrySafe]
 
 steps:
   - eval: compose-safety.js
   - eval: open-compose.js
-  - click: '[data-apb-gmail-expand]'
-  - click: '[data-apb-gmail-cc-toggle]'
-  - click: '[data-apb-gmail-bcc-toggle]'
   - eval: send.js
   - fill:
       selector: '[data-apb-gmail-to]'

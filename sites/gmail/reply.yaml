@@ -40,7 +40,7 @@ keep_tab: true
 
 output:
   type: object
-  fields: [account, sent, threadId, subject, replyAll, hasAttachment, status, confirmation, verified, error, hint, retrySafe]
+  fields: [account, sent, threadId, subject, replyAll, hasAttachment, status, confirmation, sent_search, verified, error, hint, retrySafe]
 
 steps:
   - eval: compose-safety.js

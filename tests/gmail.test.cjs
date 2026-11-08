@@ -92,6 +92,18 @@ async function runAdapter(command, overrides = {}, options = {}) {
     // Gmail no longer serializes a textContent assignment + generic Event.
     if (event.inputType === 'insertText') savedBody = event.data;
   });
+  if (options.collapsedHeaders) {
+    for (const kind of ['cc', 'bcc']) {
+      const input = dialog.querySelector(`div[name=${kind}] input`);
+      const trigger = dialog.querySelector(kind === 'cc' ? '.pE' : '.pB');
+      input.style.display = 'none';
+      trigger.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        input.style.display = 'block';
+        trigger.style.display = 'none';
+      });
+    }
+  }
   if (options.hiddenAncestor) dialog.style.visibility = 'hidden';
   window.innerHeight = 800;
   window.HTMLElement.prototype.getBoundingClientRect = function () {
@@ -99,7 +111,21 @@ async function runAdapter(command, overrides = {}, options = {}) {
     return { width: 200, height: 30, top: offscreen ? -10000 : 10, bottom: offscreen ? -9970 : 40 };
   };
   window.getComputedStyle = el => ({ display: el.style.display || 'block', visibility: el.style.visibility || 'visible', opacity: '1' });
-  window.location = { hash: command === 'reply' ? '#inbox/thread123' : '#inbox' };
+  if (options.hiddenDocument) Object.defineProperty(document, 'hidden', { get: () => true });
+  let currentHash = command === 'reply' ? '#inbox/thread123' : '#inbox';
+  window.location = {
+    get hash() { return currentHash; },
+    set hash(value) {
+      currentHash = value;
+      if (options.sentSearch === false || !value.startsWith('#search/')) return;
+      for (const row of document.querySelectorAll('tr.zA')) row.remove();
+      const row = document.createElement('tr');
+      row.className = 'zA';
+      row.innerHTML = '<td class="yf"><span></span></td><td><div class="yW">me</div><span class="bog"></span></td>';
+      row.querySelector('.bog').textContent = subject.value;
+      document.body.append(row);
+    },
+  };
   window.GLOBALS = [self];
   window.HTMLElement.prototype.scrollIntoView = function () {};
   window.HTMLElement.prototype.focus = function () {};
@@ -192,6 +218,40 @@ async function runAdapter(command, overrides = {}, options = {}) {
   } catch (caught) { error = caught; }
   return { result, error, sent, fills, document, now, adapter };
 }
+
+test('send: hidden tabs refuse before any Send click', async () => {
+  const run = await runAdapter('send', {}, { hiddenDocument: true });
+  assert.ok(run.error);
+  assert.match(run.error.message, /foreground tab/);
+  assert.equal(run.sent.length, 0);
+});
+
+test('send: collapsed Cc/Bcc links accept synthetic Enter', async () => {
+  const run = await runAdapter('send', {}, { collapsedHeaders: true });
+  assert.ifError(run.error);
+  assert.equal(run.result.sent, true, JSON.stringify(run.result));
+});
+
+test('send: Gmail controls do not use the broken native-click path', async () => {
+  const adapter = YAML.parse(fs.readFileSync(path.join(site, 'send.yaml'), 'utf8'));
+  assert.equal(adapter.steps.some(step => step.click), false);
+});
+
+test('send: sent true requires a newly rendered in:sent match', async () => {
+  const run = await runAdapter('send');
+  assert.ifError(run.error);
+  assert.equal(run.result.sent, true, JSON.stringify(run.result));
+  assert.match(run.result.sent_search.query, /^in:sent /);
+  assert.deepEqual([...run.result.sent_search.subjects], ['Regression subject']);
+});
+
+test('send: post-Undo toast without in:sent evidence stays unconfirmed', async () => {
+  const run = await runAdapter('send', {}, { sentSearch: false });
+  assert.ifError(run.error);
+  assert.equal(run.result.sent, false);
+  assert.equal(run.result.status, 'send_unconfirmed');
+  assert.equal(run.result.retrySafe, false);
+});
 
 test('send delivers the supplied multi-line body via native input', async () => {
   const run = await runAdapter('send');

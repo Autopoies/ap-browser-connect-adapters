@@ -52,6 +52,8 @@
 		let sawUndo = false;
 		const sentText = /(?:^|\s)Message sent(?:[.\s]|$)|邮件已发送|邮件已寄出/u;
 		const undoText = /\bUndo\b|撤消|撤销/u;
+		// Gmail accepts its own scoped click; ap-browser's native mouse path
+		// currently delivers down/up without a click on this control.
 		send.click();
 		const evidence = await safety.waitFor(() => {
 			if (safety.visible(editor)) return false;
@@ -77,7 +79,44 @@
 			error: 'Send was clicked, but no fresh post-undo Gmail confirmation was observed.',
 			hint: 'Keep this tab open and inspect Sent or the received message. Do not automatically resend.',
 		});
-		return finish({ sent: true, status: 'sent', confirmation: evidence, verified: ['to', 'cc', 'bcc', 'subject', 'body'] });
+		if (!expected.subject) return finish({
+			sent: false, status: 'send_unconfirmed', retrySafe: false,
+			error: 'Post-Undo confirmation observed, but an empty subject cannot be verified by an exact in:sent search.',
+			hint: 'Keep this tab open and inspect Sent manually. Do not automatically resend.',
+		});
+
+		// Toast evidence alone is not mailbox state. Navigate this owned/selected
+		// Gmail tab to Sent and require newly rendered rows; the old list can stay
+		// in the DOM briefly after an SPA hash change.
+		const quote = value => `"${String(value).replace(/(["\\])/g, '\\$1')}"`;
+		const query = `in:sent to:${quote(expected.to[0])} subject:${quote(expected.subject)}`;
+		const rowsBefore = new Set(document.querySelectorAll('tr.zA'));
+		window.location.hash = '#search/' + encodeURIComponent(query);
+		const routeReady = () => {
+			try {
+				return decodeURIComponent(window.location.hash.replace(/\+/g, '%20')) === '#search/' + query;
+			} catch { return false; }
+		};
+		const sentRows = await safety.waitFor(() => {
+			if (!routeReady()) return false;
+			const rows = [...document.querySelectorAll('tr.zA')].filter(row =>
+				!rowsBefore.has(row) && row.querySelector('.bog')?.textContent?.trim() === expected.subject);
+			return rows.length ? rows : false;
+		}, 15000);
+		if (!sentRows) return finish({
+			sent: false, status: 'send_unconfirmed', retrySafe: false,
+			error: 'Post-Undo confirmation observed, but the exact subject was not found in a fresh in:sent search.',
+			hint: 'Keep this tab open and inspect Sent manually. Do not automatically resend.',
+		});
+		return finish({
+			sent: true, status: 'sent', confirmation: evidence,
+			sent_search: {
+				query,
+				subjects: sentRows.map(row => row.querySelector('.bog').textContent.trim()),
+				thread_ids: sentRows.map(row => row.querySelector('[data-legacy-thread-id]')?.getAttribute('data-legacy-thread-id') || null),
+			},
+			verified: ['to', 'cc', 'bcc', 'subject', 'body', 'in:sent'],
+		});
 	} finally {
 		safety.clearTargets();
 	}
