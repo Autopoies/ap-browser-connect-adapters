@@ -1,6 +1,6 @@
 # ap-browser-connect-adapters
 
-Official site-adapter library for [Autopoies Browser Connect](https://github.com/autopoies/ap-browser-connect). 47 sites, 196 named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
+Official site-adapter library for [Autopoies Browser Connect](https://github.com/autopoies/ap-browser-connect). 48 sites, 207 named commands. Drop into `~/.ap-browser/` and `ap-browser hackernews top` just works.
 
 ![Site Adapters Showcase](assets/adapters-demo.svg)
 
@@ -35,6 +35,7 @@ cp /tmp/abc-adapters/download-config.yml ~/.ap-browser/
 | `github` | GitHub — code hosting platform |
 | `gmail` | Gmail web — inbox, drafts, spam, trash, labels, search, read, send, reply; requires login |
 | `google` | Google web and news search |
+| `google-docs` | Google Docs documents (type-locked) — read as Markdown, outline, comments, find, replace, insert, append, format, comment, mode; requires login |
 | `google-scholar` | Google Scholar — academic search, citation export, author profiles |
 | `hackernews` | Hacker News — social news for tech |
 | `hf` | Hugging Face — model / dataset / space hub |

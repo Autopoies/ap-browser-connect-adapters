@@ -1,0 +1,60 @@
+site: google-docs
+name: append
+description: Append text as new paragraph(s) at the end of a Google Docs document (as a suggestion by default)
+
+args:
+  text:
+    type: string
+    required: true
+    desc: Text to append; it starts a new paragraph and newlines become paragraph breaks
+  html:
+    type: bool
+    default: false
+    desc: Treat --text as an HTML fragment (bold, colors, links, lists, headings, styled tables) instead of plain text
+  no_leading_newline:
+    type: bool
+    default: false
+    desc: Insert directly into the trailing paragraph without prepending a newline (avoids an extra blank line when the document already ends with an empty paragraph)
+  mode:
+    type: string
+    default: suggest
+    desc: suggest (default — the change becomes a suggestion for a human to accept) or edit (change the text directly)
+  doc:
+    type: string
+    default: ''
+    desc: Document URL or ID; omit to use the document in the operated tab
+  type:
+    type: string
+    default: document
+    desc: Type lock. Only "document" is accepted; Sheets/Slides targets are rejected
+
+# Writes drive the live editor through its own menus and dialogs; keep the
+# tab so a pending save is never cut off by an auto-closed tab.
+timeout: 90
+keep_tab: true
+
+output:
+  type: object
+  fields: [doc_type, doc_id, title, url, status, verified, verified_by, chars, format, mode, previous_mode, saved, hint]
+
+steps:
+  - eval: lib.js
+  - eval: editor.js
+  - wait:
+      eval: ready.js
+      initial_delay_ms: 300
+      timeout_ms: 25000
+      interval_ms: 300
+  - eval: lib.js
+  - eval: append-init.js
+  - eval: begin.js
+  - click: '#docs-toolbar-mode-switcher'
+  - eval: mode-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - click: '#docs-edit-menu'
+  - eval: selectall-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: caret.js
+  - press: ArrowRight
+  - eval: paste.js
+  - eval: result.js

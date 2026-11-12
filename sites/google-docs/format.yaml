@@ -1,0 +1,129 @@
+site: google-docs
+name: format
+description: Format a unique anchor text in a Google Docs document — paragraph style, font family and size, bold/italic/underline, text color, highlight, and the background color of the table cell containing it (as a suggestion by default)
+
+args:
+  on:
+    type: string
+    required: true
+    desc: Exact text to format (case-sensitive, single line, must match exactly once)
+  bold:
+    type: string
+    default: ''
+    desc: true or false; omit to leave unchanged
+  italic:
+    type: string
+    default: ''
+    desc: true or false; omit to leave unchanged
+  underline:
+    type: string
+    default: ''
+    desc: true or false; omit to leave unchanged
+  style:
+    type: string
+    default: ''
+    desc: Paragraph style of the anchor's paragraph — normal, title, subtitle, h1..h6
+  font:
+    type: string
+    default: ''
+    desc: Font family exactly as listed in the document's font menu (e.g. "Open Sans", Arial)
+  size:
+    type: string
+    default: ''
+    desc: Font size; one of the menu presets 8 9 10 11 12 14 18 24 30 36 48 60 72 96
+  text_color:
+    type: string
+    default: ''
+    desc: Hex color (e.g. #cc0000) snapped to the nearest standard palette color, or none
+  highlight:
+    type: string
+    default: ''
+    desc: Text highlight hex color snapped to the nearest standard palette color, or none
+  cell_color:
+    type: string
+    default: ''
+    desc: Background of the table cell containing the anchor; hex snapped to the nearest standard palette color, or none
+  clear:
+    type: bool
+    default: false
+    desc: Clear existing text formatting on the anchor first
+  mode:
+    type: string
+    default: suggest
+    desc: suggest (default — formatting becomes a suggestion for a human to accept) or edit (apply directly)
+  doc:
+    type: string
+    default: ''
+    desc: Document URL or ID; omit to use the document in the operated tab
+  type:
+    type: string
+    default: document
+    desc: Type lock. Only "document" is accepted; Sheets/Slides targets are rejected
+
+# Fixed pipeline: sixteen format stages (a toggle or clear takes one; a color,
+# font, size or style takes two — open the menu, then pick);
+# unused stages click an inert toolbar separator.
+timeout: 120
+keep_tab: true
+
+output:
+  type: object
+  fields: [doc_type, doc_id, title, url, status, verified, verified_by, 'on', applied, mode, previous_mode, saved, hint]
+
+steps:
+  - eval: lib.js
+  - eval: editor.js
+  - wait:
+      eval: ready.js
+      initial_delay_ms: 300
+      timeout_ms: 25000
+      interval_ms: 300
+  - eval: lib.js
+  - eval: format-init.js
+  - eval: begin.js
+  - click: '#docs-toolbar-mode-switcher'
+  - eval: mode-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - click: '#docs-edit-menu'
+  - eval: find-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: find-prepare.js
+  - fill:
+      selector: '[data-apb-gdocs-find]'
+      value: '{{args.on}}'
+  - eval: find-count.js
+  - press: Escape
+  - eval: caret.js
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-next.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: format-result.js

@@ -1,0 +1,61 @@
+site: google-docs
+name: comment
+description: Add a comment anchored on a unique text in a Google Docs document
+
+args:
+  on:
+    type: string
+    default: ''
+    desc: Required. Exact text to anchor the comment on (case-sensitive, single line, must match exactly once)
+  text:
+    type: string
+    required: true
+    desc: Comment text
+  doc:
+    type: string
+    default: ''
+    desc: Document URL or ID; omit to use the document in the operated tab
+  type:
+    type: string
+    default: document
+    desc: Type lock. Only "document" is accepted; Sheets/Slides targets are rejected
+
+# Writes drive the live editor through its own menus and dialogs; keep the
+# tab so a pending save is never cut off by an auto-closed tab.
+timeout: 90
+keep_tab: true
+
+output:
+  type: object
+  fields: [doc_type, doc_id, title, url, status, verified, 'on', text, mode, saved, hint]
+
+steps:
+  - eval: lib.js
+  - eval: editor.js
+  - wait:
+      eval: ready.js
+      initial_delay_ms: 300
+      timeout_ms: 25000
+      interval_ms: 300
+  - eval: lib.js
+  - eval: comment-init.js
+  - eval: begin.js
+  - click: '#docs-edit-menu'
+  - eval: find-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: find-prepare.js
+  - fill:
+      selector: '[data-apb-gdocs-find]'
+      value: '{{args.on}}'
+  - eval: find-count.js
+  - press: Escape
+  - eval: caret.js
+  - click: '#docs-insert-menu'
+  - eval: comment-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: comment-prepare.js
+  - fill:
+      selector: '.docos-draftdiscussionview-input-pane .docos-input-textarea'
+      value: '{{args.text}}'
+  - click: '.docos-draftdiscussionview-input-pane .docos-input-post'
+  - eval: comment-verify.js

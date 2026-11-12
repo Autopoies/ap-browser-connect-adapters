@@ -1,0 +1,77 @@
+site: google-docs
+name: replace
+description: Replace exact text in a Google Docs document (as a suggestion by default); refuses ambiguous matches unless --all
+
+args:
+  find:
+    type: string
+    required: true
+    desc: Exact text to replace (case-sensitive; allows leading/trailing whitespace, and cross-paragraph \n or regex patterns with --regex true)
+  with:
+    type: string
+    default: ''
+    desc: Replacement text (required unless --delete is set; supports \n escape when --regex true)
+  regex:
+    type: bool
+    default: false
+    desc: Enable Google Docs "Match using regular expressions" (supports \n, \s+, and whitespace-only patterns)
+  delete:
+    type: bool
+    default: false
+    desc: Delete the match instead of replacing it (--with must then be omitted)
+  all:
+    type: bool
+    default: false
+    desc: Replace every match instead of requiring a unique one
+  mode:
+    type: string
+    default: suggest
+    desc: suggest (default — the change becomes a suggestion for a human to accept) or edit (change the text directly)
+  doc:
+    type: string
+    default: ''
+    desc: Document URL or ID; omit to use the document in the operated tab
+  type:
+    type: string
+    default: document
+    desc: Type lock. Only "document" is accepted; Sheets/Slides targets are rejected
+
+# Writes drive the live editor through its own menus and dialogs; keep the
+# tab so a pending save is never cut off by an auto-closed tab.
+timeout: 90
+keep_tab: true
+
+output:
+  type: object
+  fields: [doc_type, doc_id, title, url, status, verified, find, with, matches_before, matches_after, replaced, mode, previous_mode, saved, hint]
+
+steps:
+  - eval: lib.js
+  - eval: editor.js
+  - wait:
+      eval: ready.js
+      initial_delay_ms: 300
+      timeout_ms: 25000
+      interval_ms: 300
+  - eval: lib.js
+  - eval: replace-init.js
+  - eval: begin.js
+  - click: '#docs-toolbar-mode-switcher'
+  - eval: mode-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - click: '#docs-edit-menu'
+  - eval: find-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: find-prepare.js
+  - fill:
+      selector: '[data-apb-gdocs-find]'
+      value: '{{args.find}}'
+  - eval: find-count.js
+  - fill:
+      selector: '[data-apb-gdocs-replace]'
+      value: '{{args.with}}'
+  - eval: replace-pick.js
+  - click: '[data-apb-gdocs-click]'
+  - eval: replace-verify.js
+  - press: Escape
+  - eval: result.js
