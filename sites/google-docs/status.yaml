@@ -1,0 +1,21 @@
+site: google-docs
+name: status
+description: Report the open Google Docs document's type, title, editing mode, save state, tabs and pending suggestion/comment counts
+
+args:
+  doc:
+    type: string
+    default: ''
+    desc: Document URL or ID; omit to use the document in the operated tab
+  type:
+    type: string
+    default: document
+    desc: Type lock. Only "document" is accepted; Sheets/Slides targets are rejected
+
+output:
+  type: object
+  fields: [doc_type, doc_id, title, url, open, mode, editable, saved, tab, tabs, comment_threads, pending_suggestions, visible, note]
+
+steps:
+  - eval: lib.js
+  - eval: status.js

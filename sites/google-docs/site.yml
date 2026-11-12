@@ -1,0 +1,4 @@
+site: google-docs
+domain: docs.google.com
+description: Google Docs documents (type-locked to "document") — read as Markdown, outline, comments, find, replace, insert, append, format, comment, mode; requires login
+login_url: https://docs.google.com/document/u/0/

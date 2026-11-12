@@ -1,0 +1,43 @@
+site: google-docs
+name: read
+description: Read a Google Docs document as Markdown or plain text (whole document or one heading section)
+
+args:
+  doc:
+    type: string
+    default: ''
+    desc: Document URL or ID; omit to read the document in the operated tab
+  type:
+    type: string
+    default: document
+    desc: Type lock. Only "document" is accepted; Sheets/Slides targets are rejected
+  # Not `tab`: the CLI's global --tab selects the browser tab.
+  doc_tab:
+    type: string
+    default: ''
+    desc: Document tab ID inside the doc (e.g. t.0); defaults to the tab in the URL, else the first tab
+  # Not named `format`: the CLI consumes --format as its own output-format flag.
+  as:
+    type: string
+    default: markdown
+    desc: markdown (default), text, or blocks (JSON array of raw blocks with empty paragraphs and preserved whitespace)
+  preserve_ws:
+    type: bool
+    default: false
+    desc: Keep \u00a0, leading/trailing spaces, and true empty-paragraph gaps instead of normalizing whitespace
+  section:
+    type: string
+    default: ''
+    desc: Only return the section whose heading contains this text (case-insensitive)
+  max_chars:
+    type: int
+    default: 100000
+    desc: Maximum content characters to return (up to 500000)
+
+output:
+  type: object
+  fields: [doc_type, doc_id, title, url, tab, format, section, chars, truncated, content]
+
+steps:
+  - eval: lib.js
+  - eval: read.js
